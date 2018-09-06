@@ -64,3 +64,39 @@ list(INSERT CMAKE_MODULE_PATH 0 ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 Add this repository as a git submodule.
 
+## Maintainers
+
+_These instructions below have been tested on a Linux system, they may have to be adapted to work on macOS or Windows._
+
+### Creating new release and updating README
+
+* Step 1: List all tags sorted by version
+
+```
+git fetch --tags && \
+  git tag -l | sort -V
+```
+
+* Step 2: Choose the next release version number and tag the release
+
+```
+tag=vX.Y.Z
+git tag -s -m "FindVcvars $tag" $tag
+
+git push origin $tag
+```
+
+* Step 3: Update release and expected_hash in README
+
+```
+cd cmake-FindVcvars
+
+expected_hash=$(sha256sum FindVcvars.cmake | cut -d" " -f1) && \
+sed -E "s/set\(expected_hash.+\)/set\(expected_hash \"$expected_hash\"\)/g" -i README.md && \
+sed -E "s/v[0-9](\.[0-9])+\/FindVcvars.cmake/$tag\/FindVcvars.cmake/g" -i README.md && \
+git add README.md && \
+git commit -m "README: Update release and expected_hash"
+
+git push origin master
+```
+
