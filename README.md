@@ -13,6 +13,13 @@ to easily integrate the module by either copying its content or downloading it.
 
 For reference, the associated merge request is https://gitlab.kitware.com/cmake/cmake/merge_requests/899
 
+## Changes
+
+### v1.1
+
+* Rename `Vcvars_WRAPPER_BATCH_FILE` to `Vcvars_LAUNCHER`
+
+
 ## Integrating the module in your project
 
 There are few possible approaches:

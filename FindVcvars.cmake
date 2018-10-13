@@ -35,7 +35,7 @@ This will define the following variables:
 
   Path to ``vcvars32.bat``, ``vcvarsamd64.bat`` or ``vcvars64.bat``.
 
-.. variable:: Vcvars_WRAPPER_BATCH_FILE
+.. variable:: Vcvars_LAUNCHER
 
   Path to a generated wrapper script allowing to execute program after
   setting environment defined by `Vcvars_BATCH_FILE`.
@@ -46,7 +46,7 @@ This will define the following variables:
     set(cmd_wrapper)
     if(MSVC)
       find_package(Vcvars REQUIRED)
-      set(cmd_wrapper ${Vcvars_WRAPPER_BATCH_FILE})
+      set(cmd_wrapper ${Vcvars_LAUNCHER})
     endif()
 
     ExternalProject_Add(AwesomeProject
@@ -241,8 +241,8 @@ endif()
 if(NOT DEFINED Vcvars_BATCH_FILE)
   set(Vcvars_BATCH_FILE "Vcvars_BATCH_FILE-NOTFOUND")
 endif()
-if(NOT DEFINED Vcvars_WRAPPER_BATCH_FILE)
-  set(Vcvars_WRAPPER_BATCH_FILE "Vcvars_WRAPPER_BATCH_FILE-NOTFOUND")
+if(NOT DEFINED Vcvars_LAUNCHER)
+  set(Vcvars_LAUNCHER "Vcvars_LAUNCHER-NOTFOUND")
 endif()
 
 # check Vcvars_MSVC_ARCH is propertly set
@@ -298,7 +298,7 @@ else()
 endif()
 
 # configure wrapper script
-set(Vcvars_WRAPPER_BATCH_FILE)
+set(Vcvars_LAUNCHER)
 if(Vcvars_BATCH_FILE)
 
   set(_in "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/Vcvars_wrapper.bat.in")
@@ -309,7 +309,7 @@ if(Vcvars_BATCH_FILE)
 ")
   configure_file(${_in} ${_out} @ONLY)
 
-  set(Vcvars_WRAPPER_BATCH_FILE ${_out})
+  set(Vcvars_LAUNCHER ${_out})
   unset(_in)
   unset(_out)
 endif()
@@ -323,9 +323,9 @@ find_package_handle_standard_args(Vcvars
   FOUND_VAR Vcvars_FOUND
   REQUIRED_VARS
     Vcvars_BATCH_FILE
+    Vcvars_LAUNCHER
     Vcvars_MSVC_VERSION
     Vcvars_MSVC_ARCH
-    Vcvars_WRAPPER_BATCH_FILE
   FAIL_MESSAGE
     "Failed to find vcvars scripts for Vcvars_MSVC_VERSION [${Vcvars_MSVC_VERSION}] and Vcvars_MSVC_ARCH [${Vcvars_MSVC_ARCH}]"
   )
