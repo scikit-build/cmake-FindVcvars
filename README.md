@@ -35,8 +35,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "8ecf77d18a15514afd96e5097c6adb1f706fdb8cfbad0b5d6c3c6fadceaf5921")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.1/FindVcvars.cmake")
+set(expected_hash "b36aa3fb2ce86132e55a8d59f4513cf7d1e0b46bad214adccca8643fadec66d0")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.2/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
