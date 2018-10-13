@@ -118,7 +118,9 @@ function(Vcvars_ConvertMsvcVersionToVsVersion msvc_version output_var)
     message(FATAL_ERROR "msvc_version is expected to match `${_Vcvars_MSVC_VERSION_REGEX}`")
   endif()
   # See https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
-  if(msvc_version EQUAL 1914)     # VS 2017
+  if(msvc_version EQUAL 1915)     # VS 2017
+    set(vs_version "15.8")
+  elseif(msvc_version EQUAL 1914) # VS 2017
     set(vs_version "15.7")
   elseif(msvc_version EQUAL 1913) # VS 2017
     set(vs_version "15.6")

@@ -15,6 +15,10 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 ## Changes
 
+### v1.2
+
+* Add support for Visual Studio 2017 15.8 (msvc version 1915)
+
 ### v1.1
 
 * Rename `Vcvars_WRAPPER_BATCH_FILE` to `Vcvars_LAUNCHER`
