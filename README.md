@@ -15,6 +15,11 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 ## Changes
 
+### v1.4
+
+* Add support for MSVC version 1928
+* Add support for MSVC version 1927
+
 ### v1.3
 
 * Add support for MSVC version 1916 through 1926
@@ -39,8 +44,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "cacfcb6e243e4a0fa628c5873d0cb444c08079b7729af24093a59712b01b6ff6")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.3/FindVcvars.cmake")
+set(expected_hash "5b8bc6efd50add122c92572a51d2dbffef3dadd46ebc7a66c94473607d59011c")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.4/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
