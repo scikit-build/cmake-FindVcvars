@@ -15,6 +15,10 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 ## Changes
 
+### v1.3
+
+* Add support for MSVC version 1916 through 1926
+
 ### v1.2
 
 * Add support for Visual Studio 2017 15.8 (msvc version 1915)
