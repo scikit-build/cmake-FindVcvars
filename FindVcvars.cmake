@@ -100,8 +100,6 @@ This module also defines the following functions
 
 cmake_minimum_required(VERSION 3.5)
 
-# TODO Support lookup of "Microsoft Visual C++ Compiler for Python 2.7 (x86, amd64)"
-
 # Global variables used only in this script (unset at the end)
 set(_Vcvars_MSVC_ARCH_REGEX "^(32|64)$")
 set(_Vcvars_MSVC_VERSION_REGEX "^[0-9][0-9][0-9][0-9]$")
