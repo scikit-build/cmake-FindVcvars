@@ -15,6 +15,8 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 ## Notes
 
+* Anticipate future release of VS 2022 listing MSVC_VERSION up to 1940 as being valid version numbers. 
+
 * There is no support for looking up `Microsoft Visual C++ Compiler for Python 2.7`
 
 ## Changes
