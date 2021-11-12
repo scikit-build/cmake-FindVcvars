@@ -13,6 +13,10 @@ to easily integrate the module by either copying its content or downloading it.
 
 For reference, the associated merge request is https://gitlab.kitware.com/cmake/cmake/merge_requests/899
 
+## Notes
+
+* There is no support for looking up `Microsoft Visual C++ Compiler for Python 2.7`
+
 ## Changes
 
 ### v1.5
