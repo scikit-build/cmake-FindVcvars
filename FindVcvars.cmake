@@ -105,10 +105,17 @@ cmake_minimum_required(VERSION 3.5)
 # Global variables used only in this script (unset at the end)
 set(_Vcvars_MSVC_ARCH_REGEX "^(32|64)$")
 set(_Vcvars_MSVC_VERSION_REGEX "^[0-9][0-9][0-9][0-9]$")
-set(_Vcvars_SUPPORTED_MSVC_VERSIONS 1930
-                                    1929 1928 1927 1926 1925 1924 1923 1922 1921 1920
-                                    1916 1915 1914 1913 1912 1911 1910 1900
-                                    1800 1700 1600 1500 1400)
+set(_Vcvars_SUPPORTED_MSVC_VERSIONS
+  1930 # VS 2022
+  1929 1928 1927 1926 1925 1924 1923 1922 1921 1920 # VS 2019
+  1916 1915 1914 1913 1912 1911 1910 # VS 2017
+  1900 # VS 2015
+  1800 # VS 2013
+  1700 # VS 2012
+  1600 # VS 2010
+  1500 # VS 2008
+  1400 # VS 2005
+  )
 
 function(_vcvars_message)
   if(NOT Vcvars_FIND_QUIETLY)
