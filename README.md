@@ -127,7 +127,15 @@ sed -E "s/set\(expected_hash.+\)/set\(expected_hash \"$expected_hash\"\)/g" -i R
 sed -E "s/v[0-9](\.[0-9])+\/FindVcvars.cmake/$tag\/FindVcvars.cmake/g" -i README.md && \
 git add README.md && \
 git commit -m "README: Update release and expected_hash"
+```
 
+* Step 4: Amend the commit and update the [CHANGES][CHANGES] section.
+
+* Step 5: Push changes
+
+```
 git push origin master
 ```
+
+[CHANGES]: https://github.com/scikit-build/cmake-FindVcvars#changes
 
