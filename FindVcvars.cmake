@@ -249,7 +249,7 @@ if(NOT DEFINED Vcvars_LAUNCHER)
   set(Vcvars_LAUNCHER "Vcvars_LAUNCHER-NOTFOUND")
 endif()
 
-# check Vcvars_MSVC_ARCH is propertly set
+# check Vcvars_MSVC_ARCH is properly set
 if(NOT Vcvars_MSVC_ARCH MATCHES ${_Vcvars_MSVC_ARCH_REGEX})
   message(FATAL_ERROR "Vcvars_MSVC_ARCH [${Vcvars_MSVC_ARCH}] is expected to match `${_Vcvars_MSVC_ARCH_REGEX}`")
 endif()
