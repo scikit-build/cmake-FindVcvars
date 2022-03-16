@@ -21,6 +21,12 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 ## Changes
 
+### v1.6
+
+* Update `_Vcvars_SUPPORTED_MSVC_VERSIONS` anticipating future VS 2022 releases
+
+* Fix typo in commentdd
+
 ### v1.5
 
 * Add support for msvc version 1929
@@ -55,8 +61,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "1d102d4a562165633abf5c51f2f2539310da64be173927bdbcb96ffa56a33aba")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.5/FindVcvars.cmake")
+set(expected_hash "0fd1104a5e0f91f89b64dd700ce57ab9f7d7356fcabe9c895e62aca32386008e")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.6/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
