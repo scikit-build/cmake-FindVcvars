@@ -104,7 +104,7 @@ cmake_minimum_required(VERSION 3.5)
 set(_Vcvars_MSVC_ARCH_REGEX "^(32|64)$")
 set(_Vcvars_MSVC_VERSION_REGEX "^[0-9][0-9][0-9][0-9]$")
 set(_Vcvars_SUPPORTED_MSVC_VERSIONS
-  1939 1938 1937 1936 1935 1934 1933 1932 1931 1930 # VS 2022
+  1940 1939 1938 1937 1936 1935 1934 1933 1932 1931 1930 # VS 2022
   1929 1928 1927 1926 1925 1924 1923 1922 1921 1920 # VS 2019
   1916 1915 1914 1913 1912 1911 1910 # VS 2017
   1900 # VS 2015
@@ -126,7 +126,7 @@ function(Vcvars_ConvertMsvcVersionToVsVersion msvc_version output_var)
     message(FATAL_ERROR "msvc_version is expected to match `${_Vcvars_MSVC_VERSION_REGEX}`")
   endif()
   # See https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
-  if((msvc_version GREATER_EQUAL 1930) AND (msvc_version LESS 1940))     # VS 2022
+  if((msvc_version GREATER_EQUAL 1930) AND (msvc_version LESS 1941))     # VS 2022
     set(vs_version "17")
   elseif((msvc_version GREATER_EQUAL 1920) AND (msvc_version LESS 1930)) # VS 2019
     set(vs_version "16")
