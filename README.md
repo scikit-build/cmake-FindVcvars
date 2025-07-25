@@ -21,6 +21,8 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 ## Changes
 
+<!-- CHANGELOG-INSERT -->
+
 ### v1.6
 
 * Update `_Vcvars_SUPPORTED_MSVC_VERSIONS` anticipating future VS 2022 releases
@@ -107,11 +109,14 @@ _These instructions below have been tested on a Linux system, they may have to b
 
 ### Creating new release and updating README
 
-* Step 1: List all tags sorted by version
+* Step 1: List all tags sorted by version and get the latest one
 
 ```
 git fetch --tags && \
   git tag -l | sort -V
+
+latest_tag=$(git describe --tags --abbrev=0)
+echo "latest_tag [$latest_tag]"
 ```
 
 * Step 2: Choose the next release version number and tag the release
@@ -128,16 +133,45 @@ git push origin $tag
 ```
 cd cmake-FindVcvars
 
-expected_hash=$(sha256sum FindVcvars.cmake | cut -d" " -f1) && \
+expected_hash=$(git show $tag:FindVcvars.cmake | sha256sum | cut -d" " -f1) && \
 sed -E "s/set\(expected_hash.+\)/set\(expected_hash \"$expected_hash\"\)/g" -i README.md && \
 sed -E "s/v[0-9](\.[0-9])+\/FindVcvars.cmake/$tag\/FindVcvars.cmake/g" -i README.md && \
 git add README.md && \
 git commit -m "README: Update release and expected_hash"
 ```
 
-* Step 4: Amend the commit and update the [CHANGES][CHANGES] section.
+* Step 4: Extract changelog entries and update the [CHANGES][CHANGES] section
 
-* Step 5: Push changes
+```
+# Set new_tag to the tag just created in Step 2
+new_tag=$tag
+
+# Extract changelog entries, skipping expected README update commit
+changelog=$(git log "${latest_tag}..HEAD" --pretty=format:"* %s" --reverse |
+  grep -v -E "^(\* )?README: Update release and expected_hash")
+
+# Format the changelog block
+changelog_entry=$(printf "\n### %s\n\n%s\n" "$new_tag" "$changelog")
+
+# Insert after placeholder
+awk -v entry="$changelog_entry" '
+  /^<!-- CHANGELOG-INSERT -->/ {
+    print;
+    print entry;
+    next
+  }
+  { print }
+' README.md > README.tmp && mv README.tmp README.md
+```
+
+* Step 5: Amend the commit to include the changelog
+
+```
+git add README.md
+git commit --amend --no-edit
+```
+
+* Step 6: Push changes
 
 ```
 git push origin master
