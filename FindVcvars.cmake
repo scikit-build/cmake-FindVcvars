@@ -98,7 +98,7 @@ This module also defines the following functions
 
 #]=======================================================================]
 
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.20.6...3.22.6 FATAL_ERROR)
 
 # Global variables used only in this script (unset at the end)
 set(_Vcvars_MSVC_ARCH_REGEX "^(32|64)$")
