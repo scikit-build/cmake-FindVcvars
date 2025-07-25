@@ -23,6 +23,11 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 <!-- CHANGELOG-INSERT -->
 
+### v1.8
+
+* docs: Add changelog insertion placeholder and streamline release instructions
+* Update minimum required CMake version from 3.5 to 3.20.6
+
 ### v1.7
 
 * Add support for msvc version 1940 (Visual Studio 2022)
@@ -68,8 +73,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "a3097481cedf3d7cdbdd3a20551da54e1627fe16fbe9aa18b9c7a1c70b50274e")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.7/FindVcvars.cmake")
+set(expected_hash "da544df5e162e99aadb9d3cbb171851d4254e177b1af7081123bef55068970fa")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.8/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
