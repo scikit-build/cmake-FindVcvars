@@ -27,7 +27,6 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 * Add support for msvc version 1940 (Visual Studio 2022)
 * Anticipate future VS 2022 releases up to msvc 1950
-* docs: Add changelog insertion placeholder and streamline release instructions
 
 ### v1.6
 
@@ -153,7 +152,7 @@ git commit -m "README: Update release and expected_hash"
 new_tag=$tag
 
 # Extract changelog entries, skipping expected README update commit
-changelog=$(git log "${latest_tag}..HEAD" --pretty=format:"* %s" --reverse |
+changelog=$(git log "${latest_tag}..${new_tag}" --pretty=format:"* %s" --reverse |
   grep -v -E "^(\* )?README: Update release and expected_hash")
 
 # Format the changelog block
