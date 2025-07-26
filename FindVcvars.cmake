@@ -96,6 +96,12 @@ This module also defines the following functions
   ``<output_var>``
     The name of the variable to be set with the Visual Studio version.
 
+This module also supports the following COMPONENTS:
+
+* ``FunctionsOnly``: Only defines the helper functions
+  (e.g., ``Vcvars_GetVisualStudioPaths``, ``Vcvars_ConvertMsvcVersionToVsVersion``)
+  without attempting to discover or set ``Vcvars_BATCH_FILE`` or ``Vcvars_LAUNCHER``.
+
 #]=======================================================================]
 
 cmake_minimum_required(VERSION 3.20.6...3.22.6 FATAL_ERROR)
@@ -114,6 +120,16 @@ set(_Vcvars_SUPPORTED_MSVC_VERSIONS
   1500 # VS 2008
   1400 # VS 2005
   )
+
+# process component arguments
+if(Vcvars_FIND_COMPONENTS)
+  if("FunctionsOnly" IN_LIST Vcvars_FIND_COMPONENTS)
+    set(_Vcvars_FUNCTIONS_ONLY TRUE)
+  endif()
+  if(_Vcvars_FUNCTIONS_ONLY AND NOT Vcvars_FIND_COMPONENTS STREQUAL "FunctionsOnly")
+    message(FATAL_ERROR "FindVcvars: Only supported COMPONENTS argument is 'FunctionsOnly'.")
+  endif()
+endif()
 
 function(_vcvars_message)
   if(NOT Vcvars_FIND_QUIETLY)
@@ -212,6 +228,11 @@ function(Vcvars_GetVisualStudioPaths msvc_version msvc_arch output_var)
   endif()
   set(${output_var} ${_vs_installer_paths} PARENT_SCOPE)
 endfunction()
+
+if(_Vcvars_FUNCTIONS_ONLY)
+  set(Vcvars_FOUND TRUE)
+  return()
+endif()
 
 # default
 if(NOT DEFINED Vcvars_MSVC_ARCH)
