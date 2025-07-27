@@ -17,11 +17,15 @@ set(FindVcvars_MODULE_PATH "${CMAKE_SOURCE_DIR}/..")
 
 include(CTest)
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake "\
-cmake_minimum_required(VERSION ${CMAKE_VERSION} FATAL_ERROR)
-list(INSERT CMAKE_MODULE_PATH 0 \"${FindVcvars_MODULE_PATH}\")
-"
-[==[
+# Testing logic common to both script and project modes
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/test-find-vcvars.cmake.in [==[
+cmake_minimum_required(VERSION @CMAKE_VERSION@ FATAL_ERROR)
+
+if(CMAKE_ROLE STREQUAL "PROJECT")
+  project(TestFindVcvars)
+endif()
+
+list(INSERT CMAKE_MODULE_PATH 0 "@FindVcvars_MODULE_PATH@")
 
 # Check expected defined variables
 set(expected_vars
@@ -136,6 +140,13 @@ check_file_exists("Vcvars_LAUNCHER")
 check_filename_matches("Vcvars_LAUNCHER" "${EXPECTED_LAUNCHER_FILENAME}")
 ]==]
 )
+
+# script-mode
+configure_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/test-find-vcvars.cmake.in
+  ${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake
+  @ONLY
+  )
 
 add_test(
   NAME "script-mode-defaults"
