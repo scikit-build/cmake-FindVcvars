@@ -1,0 +1,56 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - "**.md"
+  pull_request:
+    paths-ignore:
+      - "**.md"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      max-parallel: 3
+      matrix:
+        os: [windows-latest]
+        cmake-version: [3.31.8]
+        include:
+          - os: windows-latest
+            cmake-generator: "Visual Studio 17 2022"
+            expected-msvc-arch: 64
+            expected-msvc-version: 1949 # Visual Studio 17 2022
+            expected-batch-filename: "vcvars64.bat"
+            expected-wrapper-filename: "vcvars64_wrapper.bat"
+
+    name: Tests on ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v2.0.2
+      with:
+        cmake-version: ${{ matrix.cmake-version }}
+
+    - name: Configure
+      if: matrix.os == 'windows-latest'
+      shell: powershell
+      run: |
+        cmake `
+          -G"${{ matrix.cmake-generator }}" `
+          -DEXPECTED_MSVC_ARCH:STRING=${{ matrix.expected-msvc-arch }} `
+          -DEXPECTED_MSVC_VERSION:STRING=${{ matrix.expected-msvc-version }} `
+          -DEXPECTED_BATCH_FILENAME:STRING=${{ matrix.expected-batch-filename }} `
+          -DEXPECTED_WRAPPER_FILENAME:STRING=${{ matrix.expected-wrapper-filename }} `
+          -S tests `
+          -B build
+
+    - name: Tests
+      run: |
+        ctest --test-dir build -C Release
+
