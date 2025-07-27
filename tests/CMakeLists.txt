@@ -149,6 +149,14 @@ configure_file(
   @ONLY
   )
 
+# project-mode
+set(project_mode_src_dir "${CMAKE_CURRENT_BINARY_DIR}/test-find-vcvars")
+configure_file(
+  ${CMAKE_CURRENT_BINARY_DIR}/test-find-vcvars.cmake.in
+  ${project_mode_src_dir}/CMakeLists.txt
+  @ONLY
+  )
+
 function(add_find_vcvars_test)
   set(options )
   set(oneValueArgs
@@ -166,6 +174,20 @@ function(add_find_vcvars_test)
     NAME "script-mode-${arg_NAME}"
     COMMAND ${CMAKE_COMMAND} ${arg_OPTIONS} -P ${script_mode_script}
     )
+
+  # project-mode
+  set(src_dir "${project_mode_src_dir}")
+  set(bld_dir "${project_mode_src_dir}-${arg_NAME}-build")
+  add_test(
+    NAME "project-mode-${arg_NAME}"
+    COMMAND ${CMAKE_COMMAND} ${arg_OPTIONS} -S ${src_dir} -B ${bld_dir}
+    )
+  set_tests_properties("project-mode-${arg_NAME}"  PROPERTIES FIXTURES_REQUIRED "fixture-${arg_NAME}")
+  add_test(
+    NAME "project-mode-${arg_NAME}-setup"
+    COMMAND ${CMAKE_COMMAND} -E rm -rf ${bld_dir}
+    )
+  set_tests_properties("project-mode-${arg_NAME}-setup"  PROPERTIES FIXTURES_SETUP "fixture-${arg_NAME}")
 endfunction()
 
 add_find_vcvars_test(
