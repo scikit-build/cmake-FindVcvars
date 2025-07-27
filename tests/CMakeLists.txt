@@ -142,15 +142,35 @@ check_filename_matches("Vcvars_LAUNCHER" "${EXPECTED_LAUNCHER_FILENAME}")
 )
 
 # script-mode
+set(script_mode_script "${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake")
 configure_file(
   ${CMAKE_CURRENT_BINARY_DIR}/test-find-vcvars.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake
+  ${script_mode_script}
   @ONLY
   )
 
-add_test(
-  NAME "script-mode-defaults"
-  COMMAND ${CMAKE_COMMAND}
+function(add_find_vcvars_test)
+  set(options )
+  set(oneValueArgs
+    NAME
+    )
+  set(multiValueArgs
+    OPTIONS
+    )
+  cmake_parse_arguments(PARSE_ARGV 0 arg
+    "${options}" "${oneValueArgs}" "${multiValueArgs}"
+    )
+
+  # script-mode
+  add_test(
+    NAME "script-mode-${arg_NAME}"
+    COMMAND ${CMAKE_COMMAND} ${arg_OPTIONS} -P ${script_mode_script}
+    )
+endfunction()
+
+add_find_vcvars_test(
+  NAME "defaults"
+  OPTIONS
     # Requested
     # NA
     # Expected
@@ -158,12 +178,11 @@ add_test(
     -DEXPECTED_MSVC_VERSION:STRING=${EXPECTED_MSVC_VERSION}
     -DEXPECTED_BATCH_FILENAME:STRING=${EXPECTED_BATCH_FILENAME}
     -DEXPECTED_WRAPPER_FILENAME:STRING=${EXPECTED_WRAPPER_FILENAME}
-    -P ${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake
   )
 
-add_test(
-  NAME "script-mode-set-arch-64"
-  COMMAND ${CMAKE_COMMAND}
+add_find_vcvars_test(
+  NAME "set-arch-64"
+  OPTIONS
     # Requested
     -DREQUESTED_MSVC_ARCH:STRING=64
     # Expected
@@ -171,12 +190,11 @@ add_test(
     -DEXPECTED_MSVC_VERSION:STRING=${EXPECTED_MSVC_VERSION}
     -DEXPECTED_BATCH_FILENAME:STRING=vcvars64.bat
     -DEXPECTED_WRAPPER_FILENAME:STRING=vcvars64_wrapper.bat
-    -P ${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake
   )
 
-add_test(
-  NAME "script-mode-set-arch-32"
-  COMMAND ${CMAKE_COMMAND}
+add_find_vcvars_test(
+  NAME "set-arch-32"
+  OPTIONS
     # Requested
     -DREQUESTED_MSVC_ARCH:STRING=32
     # Expected
@@ -184,12 +202,11 @@ add_test(
     -DEXPECTED_MSVC_VERSION:STRING=${EXPECTED_MSVC_VERSION}
     -DEXPECTED_BATCH_FILENAME:STRING=vcvars32.bat
     -DEXPECTED_WRAPPER_FILENAME:STRING=vcvars32_wrapper.bat
-    -P ${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake
   )
 
-add_test(
-  NAME "script-mode-set-version-${EXPECTED_MSVC_ARCH}"
-  COMMAND ${CMAKE_COMMAND}
+add_find_vcvars_test(
+  NAME "set-version-${EXPECTED_MSVC_ARCH}"
+  OPTIONS
     # Requested
     -DREQUESTED_MSVC_VERSION:STRING=${EXPECTED_MSVC_VERSION}
     # Expected
@@ -197,6 +214,5 @@ add_test(
     -DEXPECTED_MSVC_VERSION:STRING=${EXPECTED_MSVC_VERSION}
     -DEXPECTED_BATCH_FILENAME:STRING=${EXPECTED_BATCH_FILENAME}
     -DEXPECTED_WRAPPER_FILENAME:STRING=${EXPECTED_WRAPPER_FILENAME}
-    -P ${CMAKE_CURRENT_BINARY_DIR}/test-script-mode.cmake
   )
 
