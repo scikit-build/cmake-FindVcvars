@@ -96,6 +96,50 @@ This module also defines the following functions
   ``<output_var>``
     The name of the variable to be set with the Visual Studio version.
 
+
+The module also defines the following variables mapping MSVC versions
+to their associated toolset or Visual Studio major release:
+
+.. variable:: Vcvars_TOOLSET_<Toolset>_MSVC_VERSIONS
+
+  Lists the MSVC version numbers associated with a specific compiler toolset.
+  These are grouped based on official Microsoft and CMake-maintained mappings.
+
+  Example mappings:
+
+  - ``Vcvars_TOOLSET_143_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v143`` (Visual Studio 2022)
+  - ``Vcvars_TOOLSET_142_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v142`` (Visual Studio 2019)
+  - ``Vcvars_TOOLSET_141_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v141`` (Visual Studio 2017)
+  - ``Vcvars_TOOLSET_140_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v140`` (Visual Studio 2015)
+  - ``Vcvars_TOOLSET_120_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v120`` (Visual Studio 2013)
+  - ``Vcvars_TOOLSET_110_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v110`` (Visual Studio 2012)
+  - ``Vcvars_TOOLSET_100_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v100`` (Visual Studio 2010)
+  - ``Vcvars_TOOLSET_90_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v90``  (Visual Studio 2008)
+  - ``Vcvars_TOOLSET_80_MSVC_VERSIONS`` — MSVC versions associated with toolset ``v80``  (Visual Studio 2005)
+
+.. variable:: Vcvars_VS<Major>_MSVC_VERSIONS
+
+  Lists the MSVC version numbers grouped by the corresponding Visual Studio release.
+
+  These aliases mirror the toolset mappings above but allow for intuitive access
+  based on the Visual Studio version number.
+
+  Example aliases:
+
+  - ``Vcvars_VS17_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_143_MSVC_VERSIONS`` (Visual Studio 2022)
+  - ``Vcvars_VS16_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_142_MSVC_VERSIONS`` (Visual Studio 2019)
+  - ``Vcvars_VS15_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_141_MSVC_VERSIONS`` (Visual Studio 2017)
+  - ``Vcvars_VS14_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_140_MSVC_VERSIONS`` (Visual Studio 2015)
+  - ``Vcvars_VS12_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_120_MSVC_VERSIONS`` (Visual Studio 2013)
+  - ``Vcvars_VS11_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_110_MSVC_VERSIONS`` (Visual Studio 2012)
+  - ``Vcvars_VS10_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_100_MSVC_VERSIONS`` (Visual Studio 2010)
+  - ``Vcvars_VS9_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_90_MSVC_VERSIONS``  (Visual Studio 2008)
+  - ``Vcvars_VS8_MSVC_VERSIONS`` — aliases ``Vcvars_TOOLSET_80_MSVC_VERSIONS``  (Visual Studio 2005)
+
+These variables are primarily intended for internal use and test coverage but may also be
+useful in advanced configuration or filtering of available toolchains.
+
+
 This module also supports the following COMPONENTS:
 
 * ``FunctionsOnly``: Only defines the helper functions
@@ -106,19 +150,50 @@ This module also supports the following COMPONENTS:
 
 cmake_minimum_required(VERSION 3.20.6...3.22.6 FATAL_ERROR)
 
+# See https://github.com/Kitware/CMake/blob/v4.0.3/Modules/Platform/Windows-MSVC.cmake#L72-L101
+
+set(Vcvars_TOOLSET_143_MSVC_VERSIONS # VS 2022
+  1949 1948 1947 1946 1945 1944 1943 1942 1941 1940
+  1939 1938 1937 1936 1935 1934 1933 1932 1931 1930
+  )
+set(Vcvars_TOOLSET_142_MSVC_VERSIONS # VS 2019
+  1929 1928 1927 1926 1925 1924 1923 1922 1921 1920
+  )
+set(Vcvars_TOOLSET_141_MSVC_VERSIONS # VS 2017
+  1916 1915 1914 1913 1912 1911 1910
+  )
+set(Vcvars_TOOLSET_140_MSVC_VERSIONS 1900) # VS 2015
+set(Vcvars_TOOLSET_120_MSVC_VERSIONS 1800) # VS 2013
+set(Vcvars_TOOLSET_110_MSVC_VERSIONS 1700) # VS 2012
+set(Vcvars_TOOLSET_100_MSVC_VERSIONS 1600) # VS 2010
+set(Vcvars_TOOLSET_90_MSVC_VERSIONS 1500) # VS 2008
+set(Vcvars_TOOLSET_80_MSVC_VERSIONS 1400) # VS 2005
+
+# See https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
+# and https://gitlab.kitware.com/cmake/cmake/-/merge_requests/9271
+set(Vcvars_VS17_MSVC_VERSIONS ${Vcvars_TOOLSET_143_MSVC_VERSIONS}) # VS 2022
+set(Vcvars_VS16_MSVC_VERSIONS ${Vcvars_TOOLSET_142_MSVC_VERSIONS}) # VS 2019
+set(Vcvars_VS15_MSVC_VERSIONS ${Vcvars_TOOLSET_141_MSVC_VERSIONS}) # VS 2017
+set(Vcvars_VS14_MSVC_VERSIONS ${Vcvars_TOOLSET_140_MSVC_VERSIONS}) # VS 2015
+set(Vcvars_VS12_MSVC_VERSIONS ${Vcvars_TOOLSET_120_MSVC_VERSIONS}) # VS 2013
+set(Vcvars_VS11_MSVC_VERSIONS ${Vcvars_TOOLSET_110_MSVC_VERSIONS}) # VS 2012
+set(Vcvars_VS10_MSVC_VERSIONS ${Vcvars_TOOLSET_100_MSVC_VERSIONS}) # VS 2010
+set(Vcvars_VS9_MSVC_VERSIONS ${Vcvars_TOOLSET_90_MSVC_VERSIONS}) # VS 2008
+set(Vcvars_VS8_MSVC_VERSIONS ${Vcvars_TOOLSET_80_MSVC_VERSIONS}) # VS 2005
+
 # Global variables used only in this script (unset at the end)
 set(_Vcvars_MSVC_ARCH_REGEX "^(32|64)$")
 set(_Vcvars_MSVC_VERSION_REGEX "^[0-9][0-9][0-9][0-9]$")
 set(_Vcvars_SUPPORTED_MSVC_VERSIONS
-  1949 1948 1947 1946 1945 1944 1943 1942 1941 1940 1939 1938 1937 1936 1935 1934 1933 1932 1931 1930 # VS 2022
-  1929 1928 1927 1926 1925 1924 1923 1922 1921 1920 # VS 2019
-  1916 1915 1914 1913 1912 1911 1910 # VS 2017
-  1900 # VS 2015
-  1800 # VS 2013
-  1700 # VS 2012
-  1600 # VS 2010
-  1500 # VS 2008
-  1400 # VS 2005
+  ${Vcvars_TOOLSET_143_MSVC_VERSIONS} # VS 2022
+  ${Vcvars_TOOLSET_142_MSVC_VERSIONS} # VS 2019
+  ${Vcvars_TOOLSET_141_MSVC_VERSIONS} # VS 2017
+  ${Vcvars_TOOLSET_140_MSVC_VERSIONS} # VS 2015
+  ${Vcvars_TOOLSET_120_MSVC_VERSIONS} # VS 2013
+  ${Vcvars_TOOLSET_110_MSVC_VERSIONS} # VS 2012
+  ${Vcvars_TOOLSET_100_MSVC_VERSIONS} # VS 2010
+  ${Vcvars_TOOLSET_90_MSVC_VERSIONS} # VS 2008
+  ${Vcvars_TOOLSET_80_MSVC_VERSIONS} # VS 2005
   )
 
 # process component arguments
