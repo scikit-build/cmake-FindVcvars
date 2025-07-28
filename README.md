@@ -23,6 +23,19 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 <!-- CHANGELOG-INSERT -->
 
+### v1.9
+
+* feat(Vcvars): Support `FunctionsOnly` component to skip discovery logic
+* ci: Add GitHub Actions workflow to run script-mode tests
+* ci: Use `src` subdir for checkout
+* docs: Fix listing of change entries using git
+* tests: Add initial test infrastructure for FindVcvars module
+* tests: Add script-mode tests with support for requested and expected variables
+* tests: Refactor test script to support both script and project modes
+* tests: Add add_find_vcvars_test() function to reduce duplication
+* tests: Add project-mode tests using fixture-based setup
+* tests: Check specifying FunctionsOnly component works as expected
+
 ### v1.8
 
 * docs: Add changelog insertion placeholder and streamline release instructions
@@ -73,8 +86,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "da544df5e162e99aadb9d3cbb171851d4254e177b1af7081123bef55068970fa")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.8/FindVcvars.cmake")
+set(expected_hash "361329de94bbcfdbd93ce76ad6c7318f84eacf9f30a7d8740dae316bb060e5aa")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.9/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
