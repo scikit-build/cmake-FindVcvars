@@ -157,6 +157,7 @@ check_var_equals("Vcvars_FOUND" "TRUE")
 
 check_function_defined("Vcvars_ConvertMsvcVersionToVsVersion")
 check_function_defined("Vcvars_GetVisualStudioPaths")
+check_function_defined("Vcvars_FindFirstValidMsvcVersion")
 
 # VS 2022
 check_var_equals(Vcvars_TOOLSET_143_MSVC_VERSIONS "1949;1948;1947;1946;1945;1944;1943;1942;1941;1940;1939;1938;1937;1936;1935;1934;1933;1932;1931;1930")
