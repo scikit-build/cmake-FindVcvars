@@ -29,6 +29,18 @@ These variables can be used to choose which "vcvars" batch script is looked up.
   the variable :variable:`Vcvars_MSVC_VERSION` is initialized based on the most
   recent version of Visual Studio installed on the system.
 
+.. variable:: Vcvars_FIND_VCVARSALL
+
+  If set to TRUE, forces the module to look up ``vcvarsall.bat`` instead of
+  an architecture-specific script such as ``vcvars64.bat``.
+
+  When enabled, the appropriate architecture argument (e.g., ``x64`` or ``x86``),
+  determined from the value of :variable:`Vcvars_MSVC_ARCH`, is automatically passed
+  to ``vcvarsall.bat`` via the generated wrapper script.
+
+  Default is FALSE.
+
+
 This will define the following variables:
 
 .. variable:: Vcvars_BATCH_FILE
@@ -341,10 +353,14 @@ endfunction()
 function(Vcvars_FindFirstValidMsvcVersion msvc_arch candidate_msvc_versions msvc_version_output_varname batch_file_output_varname)
   _vcvars_message(STATUS "Setting ${msvc_version_output_varname}")
   # which vcvars script ?
-  if(msvc_arch STREQUAL "64")
-    set(_candidate_scripts vcvarsamd64.bat vcvars64.bat)
+  if(Vcvars_FIND_VCVARSALL)
+    set(_candidate_scripts vcvarsall.bat)
   else()
-    set(_candidate_scripts vcvars32.bat)
+    if(msvc_arch STREQUAL "64")
+      set(_candidate_scripts vcvarsamd64.bat vcvars64.bat)
+    else()
+      set(_candidate_scripts vcvars32.bat)
+    endif()
   endif()
   foreach(_candidate_msvc_version IN LISTS candidate_msvc_versions)
     Vcvars_GetVisualStudioPaths(${_candidate_msvc_version} "${msvc_arch}" _paths)
@@ -403,9 +419,15 @@ if(NOT DEFINED Vcvars_MSVC_VERSION)
     endif()
   endif()
 endif()
+
+if(NOT DEFINED Vcvars_FIND_VCVARSALL)
+  set(Vcvars_FIND_VCVARSALL FALSE)
+endif()
+
 if(NOT DEFINED Vcvars_BATCH_FILE)
   set(Vcvars_BATCH_FILE "Vcvars_BATCH_FILE-NOTFOUND")
 endif()
+
 if(NOT DEFINED Vcvars_LAUNCHER)
   set(Vcvars_LAUNCHER "Vcvars_LAUNCHER-NOTFOUND")
 endif()
@@ -416,10 +438,14 @@ if(NOT Vcvars_MSVC_ARCH MATCHES ${_Vcvars_MSVC_ARCH_REGEX})
 endif()
 
 # which vcvars script ?
-if(Vcvars_MSVC_ARCH STREQUAL "64")
-  set(_Vcvars_SCRIPTS vcvarsamd64.bat vcvars64.bat)
+if(Vcvars_FIND_VCVARSALL)
+  set(_Vcvars_SCRIPTS vcvarsall.bat)
 else()
-  set(_Vcvars_SCRIPTS vcvars32.bat)
+  if(Vcvars_MSVC_ARCH STREQUAL "64")
+    set(_Vcvars_SCRIPTS vcvarsamd64.bat vcvars64.bat)
+  else()
+    set(_Vcvars_SCRIPTS vcvars32.bat)
+  endif()
 endif()
 
 # set Vcvars_BATCH_FILE
@@ -457,10 +483,18 @@ endif()
 set(Vcvars_LAUNCHER)
 if(Vcvars_BATCH_FILE)
 
+  set(_vcvarsall_arch )
+  if(Vcvars_FIND_VCVARSALL)
+    if(Vcvars_MSVC_ARCH STREQUAL "64")
+      set(_vcvarsall_arch "x64")
+    elseif(Vcvars_MSVC_ARCH STREQUAL "32")
+      set(_vcvarsall_arch "x86")
+    endif()
+  endif()
   set(_in "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/Vcvars_wrapper.bat.in")
   get_filename_component(_basename ${Vcvars_BATCH_FILE} NAME_WE)
   set(_out "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${_basename}_wrapper.bat")
-  file(WRITE ${_in} "call \"@Vcvars_BATCH_FILE@\"
+  file(WRITE ${_in} "call \"@Vcvars_BATCH_FILE@\" @_vcvarsall_arch@
 %*
 ")
   configure_file(${_in} ${_out} @ONLY)
@@ -468,6 +502,7 @@ if(Vcvars_BATCH_FILE)
   set(Vcvars_LAUNCHER ${_out})
   unset(_in)
   unset(_out)
+  unset(_vcvarsall_arch)
 endif()
 
 # cleanup
