@@ -97,6 +97,31 @@ This module also defines the following functions
     The name of the variable to be set with the Visual Studio version.
 
 
+.. command:: Vcvars_FindFirstValidMsvcVersion
+
+  The `Vcvars_FindFirstValidMsvcVersion()` function identifies the first MSVC version from a list of candidates that has an associated and discoverable `vcvars` batch script::
+
+  ```
+  Vcvars_FindFirstValidMsvcVersion(<msvc_arch> <candidate_msvc_versions> <msvc_version_output_varname> <batch_file_output_varname>)
+  ```
+
+  The options are:
+
+  ``<msvc_arch>``
+    Specify the Visual Studio architecture. Possible values are `32` or `64`.
+
+  ``<candidate_msvc_versions>``
+    A list of MSVC version numbers to check (e.g., `1949;1948;1947`). The list should be ordered from most to least preferred.
+
+  ``<msvc_version_output_varname>``
+    The name of the variable to store the first matching MSVC version.
+
+  ``<batch_file_output_varname>``
+    The name of the variable to store the path to the corresponding `vcvars` batch script.
+
+  This is typically used internally to identify the most recent supported Visual Studio installation that provides the appropriate environment setup scripts, but it can also be reused in custom detection logic when running in configuration or script mode.
+
+
 The module also defines the following variables mapping MSVC versions
 to their associated toolset or Visual Studio major release:
 
@@ -304,6 +329,37 @@ function(Vcvars_GetVisualStudioPaths msvc_version msvc_arch output_var)
   set(${output_var} ${_vs_installer_paths} PARENT_SCOPE)
 endfunction()
 
+function(Vcvars_FindFirstValidMsvcVersion msvc_arch candidate_msvc_versions msvc_version_output_varname batch_file_output_varname)
+  _vcvars_message(STATUS "Setting ${msvc_version_output_varname}")
+  # which vcvars script ?
+  if(msvc_arch STREQUAL "64")
+    set(_candidate_scripts vcvarsamd64.bat vcvars64.bat)
+  else()
+    set(_candidate_scripts vcvars32.bat)
+  endif()
+  foreach(_candidate_msvc_version IN LISTS candidate_msvc_versions)
+    Vcvars_GetVisualStudioPaths(${_candidate_msvc_version} "${msvc_arch}" _paths)
+    Vcvars_ConvertMsvcVersionToVsVersion(${_candidate_msvc_version} _candidate_vs_version)
+    set(_msg "  Visual Studio ${_candidate_vs_version} (${_candidate_msvc_version})")
+    _vcvars_message(STATUS "${_msg}")
+    find_program(_batch_file NAMES ${_candidate_scripts}
+      PATHS ${_paths}
+      NO_CACHE
+      )
+    if(_batch_file)
+      _vcvars_message(STATUS "${_msg} - found")
+      set(_msvc_version ${_candidate_msvc_version})
+      _vcvars_message(STATUS "Setting ${msvc_version_output_varname} to '${_msvc_version}' as it was the newest Visual Studio installed providing vcvars scripts")
+      # Output variables
+      set(${msvc_version_output_varname} ${_msvc_version} PARENT_SCOPE)
+      set(${batch_file_output_varname} ${_batch_file} PARENT_SCOPE)
+      break()
+    else()
+      _vcvars_message(STATUS "${_msg} - not found")
+    endif()
+  endforeach()
+endfunction()
+
 if(_Vcvars_FUNCTIONS_ONLY)
   set(Vcvars_FOUND TRUE)
   return()
@@ -360,28 +416,19 @@ endif()
 # set Vcvars_BATCH_FILE
 if(NOT DEFINED Vcvars_MSVC_VERSION)
   # auto-discover Vcvars_MSVC_VERSION value
-  _vcvars_message(STATUS "Setting Vcvars_MSVC_VERSION")
-  foreach(_candidate_msvc_version IN LISTS _Vcvars_SUPPORTED_MSVC_VERSIONS)
-    Vcvars_GetVisualStudioPaths(${_candidate_msvc_version} "${Vcvars_MSVC_ARCH}" _paths)
-    Vcvars_ConvertMsvcVersionToVsVersion(${_candidate_msvc_version} _candidate_vs_version)
-    set(_msg "  Visual Studio ${_candidate_vs_version} (${_candidate_msvc_version})")
-    _vcvars_message(STATUS "${_msg}")
-    find_program(Vcvars_BATCH_FILE NAMES ${_Vcvars_SCRIPTS}
-      DOC "Visual Studio ${_candidate_vs_version} ${_Vcvars_SCRIPTS}"
-      PATHS ${_paths}
-      )
-    if(Vcvars_BATCH_FILE)
-      _vcvars_message(STATUS "${_msg} - found")
-      set(Vcvars_MSVC_VERSION ${_candidate_msvc_version})
-      _vcvars_message(STATUS "Setting Vcvars_MSVC_VERSION to '${Vcvars_MSVC_VERSION}' as it was the newest Visual Studio installed providing vcvars scripts")
-      break()
-    else()
-      _vcvars_message(STATUS "${_msg} - not found")
-    endif()
-  endforeach()
-  unset(_candidate_msvc_version)
-  unset(_candidate_vs_version)
-  unset(_paths)
+  Vcvars_FindFirstValidMsvcVersion(
+    "${Vcvars_MSVC_ARCH}"
+    "${_Vcvars_SUPPORTED_MSVC_VERSIONS}"
+    Vcvars_MSVC_VERSION
+    _batch_file
+    )
+  Vcvars_ConvertMsvcVersionToVsVersion(${Vcvars_MSVC_VERSION} _vs_version)
+  unset(Vcvars_BATCH_FILE)
+  set(Vcvars_BATCH_FILE ${_batch_file}
+    CACHE FILEPATH "Visual Studio ${_vs_version} vcvars script"
+    )
+  unset(_batch_file)
+  unset(_vs_version)
 else()
   # use provided Vcvars_MSVC_VERSION value
   if(NOT Vcvars_MSVC_VERSION MATCHES ${_Vcvars_MSVC_VERSION_REGEX})
@@ -390,7 +437,7 @@ else()
   Vcvars_GetVisualStudioPaths(${Vcvars_MSVC_VERSION} "${Vcvars_MSVC_ARCH}" _paths)
   Vcvars_ConvertMsvcVersionToVsVersion(${Vcvars_MSVC_VERSION} _vs_version)
   find_program(Vcvars_BATCH_FILE NAMES ${_Vcvars_SCRIPTS}
-    DOC "Visual Studio ${_vs_version} ${_Vcvars_SCRIPTS}"
+    DOC "Visual Studio ${_vs_version} vcvars script"
     PATHS ${_paths}
     )
   unset(_paths)
