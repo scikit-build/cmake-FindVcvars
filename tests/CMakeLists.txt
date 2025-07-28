@@ -158,6 +158,51 @@ check_var_equals("Vcvars_FOUND" "TRUE")
 check_function_defined("Vcvars_ConvertMsvcVersionToVsVersion")
 check_function_defined("Vcvars_GetVisualStudioPaths")
 
+# VS 2022
+check_var_equals(Vcvars_TOOLSET_143_MSVC_VERSIONS "1949;1948;1947;1946;1945;1944;1943;1942;1941;1940;1939;1938;1937;1936;1935;1934;1933;1932;1931;1930")
+# VS 2019
+check_var_equals(Vcvars_TOOLSET_142_MSVC_VERSIONS "1929;1928;1927;1926;1925;1924;1923;1922;1921;1920")
+# VS 2017
+check_var_equals(Vcvars_TOOLSET_141_MSVC_VERSIONS "1916;1915;1914;1913;1912;1911;1910")
+check_var_equals(Vcvars_TOOLSET_140_MSVC_VERSIONS "1900") # VS 2015
+check_var_equals(Vcvars_TOOLSET_120_MSVC_VERSIONS "1800") # VS 2013
+check_var_equals(Vcvars_TOOLSET_110_MSVC_VERSIONS "1700") # VS 2012
+check_var_equals(Vcvars_TOOLSET_100_MSVC_VERSIONS "1600") # VS 2010
+check_var_equals(Vcvars_TOOLSET_90_MSVC_VERSIONS "1500") # VS 2008
+check_var_equals(Vcvars_TOOLSET_80_MSVC_VERSIONS "1400") # VS 2005
+
+check_var_equals(Vcvars_VS17_MSVC_VERSIONS "${Vcvars_TOOLSET_143_MSVC_VERSIONS}") # VS 2022
+check_var_equals(Vcvars_VS16_MSVC_VERSIONS "${Vcvars_TOOLSET_142_MSVC_VERSIONS}") # VS 2019
+check_var_equals(Vcvars_VS15_MSVC_VERSIONS "${Vcvars_TOOLSET_141_MSVC_VERSIONS}") # VS 2017
+check_var_equals(Vcvars_VS14_MSVC_VERSIONS "${Vcvars_TOOLSET_140_MSVC_VERSIONS}") # VS 2015
+check_var_equals(Vcvars_VS12_MSVC_VERSIONS "${Vcvars_TOOLSET_120_MSVC_VERSIONS}") # VS 2013
+check_var_equals(Vcvars_VS11_MSVC_VERSIONS "${Vcvars_TOOLSET_110_MSVC_VERSIONS}") # VS 2012
+check_var_equals(Vcvars_VS10_MSVC_VERSIONS "${Vcvars_TOOLSET_100_MSVC_VERSIONS}") # VS 2010
+check_var_equals(Vcvars_VS9_MSVC_VERSIONS "${Vcvars_TOOLSET_90_MSVC_VERSIONS}") # VS 2008
+check_var_equals(Vcvars_VS8_MSVC_VERSIONS "${Vcvars_TOOLSET_80_MSVC_VERSIONS}") # VS 2005
+
+function(check_msvc_version_to_vs_version_convert msvc_versions_var expected_vs_version)
+  foreach(msvc_version IN LISTS ${msvc_versions_var})
+    Vcvars_ConvertMsvcVersionToVsVersion("${msvc_version}" output_var)
+    if(NOT "${output_var}" STREQUAL "${expected_vs_version}")
+      message(FATAL_ERROR "Vcvars_ConvertMsvcVersionToVsVersion failed for msvc_version [${msvc_version}]
+       current_value [${output_var}]
+      expected_value [${expected_vs_version}]
+      ")
+    endif()
+  endforeach()
+endfunction()
+
+check_msvc_version_to_vs_version_convert(Vcvars_VS17_MSVC_VERSIONS "17")
+check_msvc_version_to_vs_version_convert(Vcvars_VS16_MSVC_VERSIONS "16")
+check_msvc_version_to_vs_version_convert(Vcvars_VS15_MSVC_VERSIONS "15")
+check_msvc_version_to_vs_version_convert(Vcvars_VS14_MSVC_VERSIONS "14.0")
+check_msvc_version_to_vs_version_convert(Vcvars_VS12_MSVC_VERSIONS "12.0")
+check_msvc_version_to_vs_version_convert(Vcvars_VS11_MSVC_VERSIONS "11.0")
+check_msvc_version_to_vs_version_convert(Vcvars_VS10_MSVC_VERSIONS "10.0")
+check_msvc_version_to_vs_version_convert(Vcvars_VS9_MSVC_VERSIONS "9.0")
+check_msvc_version_to_vs_version_convert(Vcvars_VS8_MSVC_VERSIONS "8.0")
+
 if(FUNCTIONS_ONLY_COMPONENT_REQUESTED)
   check_var_not_defined("Vcvars_MSVC_ARCH")
   check_var_not_defined("Vcvars_MSVC_VERSION")
