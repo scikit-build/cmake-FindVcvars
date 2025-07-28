@@ -171,6 +171,9 @@ check_var_equals(Vcvars_TOOLSET_110_MSVC_VERSIONS "1700") # VS 2012
 check_var_equals(Vcvars_TOOLSET_100_MSVC_VERSIONS "1600") # VS 2010
 check_var_equals(Vcvars_TOOLSET_90_MSVC_VERSIONS "1500") # VS 2008
 check_var_equals(Vcvars_TOOLSET_80_MSVC_VERSIONS "1400") # VS 2005
+check_var_equals(Vcvars_TOOLSET_71_MSVC_VERSIONS "1310") # VS 2003
+check_var_equals(Vcvars_TOOLSET_70_MSVC_VERSIONS "1300") # VS 2002
+check_var_equals(Vcvars_TOOLSET_60_MSVC_VERSIONS "1200") # VS 6.0
 
 check_var_equals(Vcvars_VS17_MSVC_VERSIONS "${Vcvars_TOOLSET_143_MSVC_VERSIONS}") # VS 2022
 check_var_equals(Vcvars_VS16_MSVC_VERSIONS "${Vcvars_TOOLSET_142_MSVC_VERSIONS}") # VS 2019
@@ -181,6 +184,9 @@ check_var_equals(Vcvars_VS11_MSVC_VERSIONS "${Vcvars_TOOLSET_110_MSVC_VERSIONS}"
 check_var_equals(Vcvars_VS10_MSVC_VERSIONS "${Vcvars_TOOLSET_100_MSVC_VERSIONS}") # VS 2010
 check_var_equals(Vcvars_VS9_MSVC_VERSIONS "${Vcvars_TOOLSET_90_MSVC_VERSIONS}") # VS 2008
 check_var_equals(Vcvars_VS8_MSVC_VERSIONS "${Vcvars_TOOLSET_80_MSVC_VERSIONS}") # VS 2005
+check_var_equals(Vcvars_VS71_MSVC_VERSIONS "${Vcvars_TOOLSET_71_MSVC_VERSIONS}") # VS 2003
+check_var_equals(Vcvars_VS7_MSVC_VERSIONS "${Vcvars_TOOLSET_70_MSVC_VERSIONS}") # VS 2002
+check_var_equals(Vcvars_VS6_MSVC_VERSIONS "${Vcvars_TOOLSET_60_MSVC_VERSIONS}") # VS 6.0
 
 function(check_msvc_version_to_vs_version_convert msvc_versions_var expected_vs_version)
   foreach(msvc_version IN LISTS ${msvc_versions_var})
@@ -203,6 +209,9 @@ check_msvc_version_to_vs_version_convert(Vcvars_VS11_MSVC_VERSIONS "11.0")
 check_msvc_version_to_vs_version_convert(Vcvars_VS10_MSVC_VERSIONS "10.0")
 check_msvc_version_to_vs_version_convert(Vcvars_VS9_MSVC_VERSIONS "9.0")
 check_msvc_version_to_vs_version_convert(Vcvars_VS8_MSVC_VERSIONS "8.0")
+check_msvc_version_to_vs_version_convert(Vcvars_VS71_MSVC_VERSIONS "7.1")
+check_msvc_version_to_vs_version_convert(Vcvars_VS7_MSVC_VERSIONS "7.0")
+check_msvc_version_to_vs_version_convert(Vcvars_VS6_MSVC_VERSIONS "6.0")
 
 if(FUNCTIONS_ONLY_COMPONENT_REQUESTED)
   check_var_not_defined("Vcvars_MSVC_ARCH")
