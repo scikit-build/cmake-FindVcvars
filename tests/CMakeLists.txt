@@ -7,6 +7,7 @@ foreach(var_name IN ITEMS
   EXPECTED_MSVC_VERSION
   EXPECTED_BATCH_FILENAME
   EXPECTED_WRAPPER_FILENAME
+  EXPECTED_PLATFORM_TOOLSET_VERSION
   )
   if(NOT DEFINED ${var_name})
     message(FATAL_ERROR "Variable ${var_name} is not specified using -D${var_name}=<value>")
@@ -34,6 +35,7 @@ set(expected_vars
   EXPECTED_MSVC_VERSION
   EXPECTED_BATCH_FILENAME
   EXPECTED_WRAPPER_FILENAME
+  EXPECTED_PLATFORM_TOOLSET_VERSION
   )
 foreach(var_name IN LISTS expected_vars)
   if(NOT DEFINED ${var_name})
@@ -54,6 +56,7 @@ foreach(var_suffix IN ITEMS
   FIND_VCVARSALL
   MSVC_ARCH
   MSVC_VERSION
+  PLATFORM_TOOLSET_VERSION
   )
   if(DEFINED REQUESTED_${var_suffix} AND NOT FUNCTIONS_ONLY_COMPONENT_REQUESTED)
     set(Vcvars_${var_suffix} ${REQUESTED_${var_suffix}})
@@ -128,6 +131,7 @@ endfunction()
 set(output_vars
   Vcvars_MSVC_ARCH
   Vcvars_MSVC_VERSION
+  Vcvars_PLATFORM_TOOLSET_VERSION
   Vcvars_BATCH_FILE
   Vcvars_LAUNCHER
   )
@@ -141,6 +145,7 @@ message(STATUS "")
 check_var_equals("Vcvars_FOUND" "TRUE")
 
 check_function_defined("Vcvars_ConvertMsvcVersionToVsVersion")
+check_function_defined("Vcvars_ConvertMsvcVersionToVcToolsetVersion")
 check_function_defined("Vcvars_GetVisualStudioPaths")
 check_function_defined("Vcvars_FindFirstValidMsvcVersion")
 
@@ -198,16 +203,43 @@ check_msvc_version_to_vs_version_convert(Vcvars_VS71_MSVC_VERSIONS "7.1")
 check_msvc_version_to_vs_version_convert(Vcvars_VS7_MSVC_VERSIONS "7.0")
 check_msvc_version_to_vs_version_convert(Vcvars_VS6_MSVC_VERSIONS "6.0")
 
+function(check_msvc_version_to_vc_toolset_version_convert msvc_versions_var expected_vc_toolset_version)
+  foreach(msvc_version IN LISTS ${msvc_versions_var})
+    Vcvars_ConvertMsvcVersionToVcToolsetVersion("${msvc_version}" output_var)
+    if(NOT "${output_var}" STREQUAL "${expected_vc_toolset_version}")
+      message(FATAL_ERROR "Vcvars_ConvertMsvcVersionToVcToolsetVersion failed for msvc_version [${msvc_version}]
+       current_value [${output_var}]
+      expected_value [${expected_vc_toolset_version}]
+      ")
+    endif()
+  endforeach()
+endfunction()
+
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS17_MSVC_VERSIONS "14.3")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS16_MSVC_VERSIONS "14.2")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS15_MSVC_VERSIONS "14.1")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS14_MSVC_VERSIONS "14.0")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS12_MSVC_VERSIONS "12.0")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS11_MSVC_VERSIONS "11.0")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS10_MSVC_VERSIONS "10.0")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS9_MSVC_VERSIONS "9.0")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS8_MSVC_VERSIONS "8.0")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS71_MSVC_VERSIONS "7.1")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS7_MSVC_VERSIONS "7.0")
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS6_MSVC_VERSIONS "6.0")
+
 if(FUNCTIONS_ONLY_COMPONENT_REQUESTED)
   check_var_not_defined("Vcvars_FIND_VCVARSALL")
   check_var_not_defined("Vcvars_MSVC_ARCH")
   check_var_not_defined("Vcvars_MSVC_VERSION")
+  check_var_not_defined("Vcvars_PLATFORM_TOOLSET_VERSION")
   check_var_not_defined("Vcvars_LAUNCHER")
   check_var_not_defined("Vcvars_LAUNCHER")
 else()
   check_var_equals("Vcvars_FIND_VCVARSALL" "${EXPECTED_FIND_VCVARSALL}")
   check_var_equals("Vcvars_MSVC_ARCH" "${EXPECTED_MSVC_ARCH}")
   check_var_equals("Vcvars_MSVC_VERSION" "${EXPECTED_MSVC_VERSION}")
+  check_var_equals("Vcvars_PLATFORM_TOOLSET_VERSION" "${EXPECTED_PLATFORM_TOOLSET_VERSION}")
 
   check_file_exists("Vcvars_BATCH_FILE")
   check_filename_matches("Vcvars_BATCH_FILE" "${EXPECTED_BATCH_FILENAME}")
@@ -292,6 +324,7 @@ add_find_vcvars_test(
     -DEXPECTED_BATCH_FILENAME:STRING=${EXPECTED_BATCH_FILENAME}
     -DEXPECTED_WRAPPER_FILENAME:STRING=${EXPECTED_WRAPPER_FILENAME}
     -DEXPECTED_FIND_VCVARSALL:BOOL=FALSE
+    -DEXPECTED_PLATFORM_TOOLSET_VERSION:BOOL=${EXPECTED_PLATFORM_TOOLSET_VERSION}
   )
 
 add_find_vcvars_test(
@@ -305,6 +338,7 @@ add_find_vcvars_test(
     -DEXPECTED_BATCH_FILENAME:STRING=vcvars64.bat
     -DEXPECTED_WRAPPER_FILENAME:STRING=vcvars64_wrapper.bat
     -DEXPECTED_FIND_VCVARSALL:BOOL=FALSE
+    -DEXPECTED_PLATFORM_TOOLSET_VERSION:BOOL=${EXPECTED_PLATFORM_TOOLSET_VERSION}
   )
 
 add_find_vcvars_test(
@@ -318,6 +352,7 @@ add_find_vcvars_test(
     -DEXPECTED_BATCH_FILENAME:STRING=vcvars32.bat
     -DEXPECTED_WRAPPER_FILENAME:STRING=vcvars32_wrapper.bat
     -DEXPECTED_FIND_VCVARSALL:BOOL=FALSE
+    -DEXPECTED_PLATFORM_TOOLSET_VERSION:BOOL=${EXPECTED_PLATFORM_TOOLSET_VERSION}
   )
 
 add_find_vcvars_test(
@@ -331,6 +366,7 @@ add_find_vcvars_test(
     -DEXPECTED_BATCH_FILENAME:STRING=${EXPECTED_BATCH_FILENAME}
     -DEXPECTED_WRAPPER_FILENAME:STRING=${EXPECTED_WRAPPER_FILENAME}
     -DEXPECTED_FIND_VCVARSALL:BOOL=FALSE
+    -DEXPECTED_PLATFORM_TOOLSET_VERSION:BOOL=${EXPECTED_PLATFORM_TOOLSET_VERSION}
   )
 
 add_find_vcvars_test(
@@ -344,6 +380,7 @@ add_find_vcvars_test(
     -DEXPECTED_BATCH_FILENAME:STRING=vcvarsall.bat
     -DEXPECTED_WRAPPER_FILENAME:STRING=vcvarsall_wrapper.bat
     -DEXPECTED_FIND_VCVARSALL:BOOL=ON
+    -DEXPECTED_PLATFORM_TOOLSET_VERSION:BOOL=${EXPECTED_PLATFORM_TOOLSET_VERSION}
   )
 
 add_find_vcvars_test(
@@ -357,5 +394,20 @@ add_find_vcvars_test(
     -DEXPECTED_BATCH_FILENAME:STRING=${EXPECTED_BATCH_FILENAME}
     -DEXPECTED_WRAPPER_FILENAME:STRING=${EXPECTED_WRAPPER_FILENAME}
     -DEXPECTED_FIND_VCVARSALL:BOOL=OFF
+    -DEXPECTED_PLATFORM_TOOLSET_VERSION:BOOL=${EXPECTED_PLATFORM_TOOLSET_VERSION}
   )
 
+add_find_vcvars_test(
+  NAME "set-toolset"
+  OPTIONS
+    # Requested
+    -DREQUESTED_FIND_VCVARSALL:BOOL=ON
+    -DREQUESTED_PLATFORM_TOOLSET_VERSION:STRING=14.2
+    # Expected
+    -DEXPECTED_MSVC_ARCH:STRING=${EXPECTED_MSVC_ARCH}
+    -DEXPECTED_MSVC_VERSION:STRING=${EXPECTED_MSVC_VERSION}
+    -DEXPECTED_BATCH_FILENAME:STRING=vcvarsall.bat
+    -DEXPECTED_WRAPPER_FILENAME:STRING=vcvarsall_wrapper.bat
+    -DEXPECTED_FIND_VCVARSALL:BOOL=ON
+    -DEXPECTED_PLATFORM_TOOLSET_VERSION:BOOL=14.2
+  )
