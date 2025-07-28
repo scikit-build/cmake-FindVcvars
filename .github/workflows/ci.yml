@@ -27,6 +27,7 @@ jobs:
             expected-msvc-version: 1949 # Visual Studio 17 2022
             expected-batch-filename: "vcvars64.bat"
             expected-wrapper-filename: "vcvars64_wrapper.bat"
+            expected-platform-toolset-version: "14.3"
 
     name: Tests on ${{ matrix.os }}
     steps:
@@ -49,6 +50,7 @@ jobs:
           -DEXPECTED_MSVC_VERSION:STRING=${{ matrix.expected-msvc-version }} `
           -DEXPECTED_BATCH_FILENAME:STRING=${{ matrix.expected-batch-filename }} `
           -DEXPECTED_WRAPPER_FILENAME:STRING=${{ matrix.expected-wrapper-filename }} `
+          -DEXPECTED_PLATFORM_TOOLSET_VERSION:STRING=${{ matrix.expected-platform-toolset-version }} `
           -S src/tests `
           -B build
 

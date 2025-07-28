@@ -40,6 +40,21 @@ These variables can be used to choose which "vcvars" batch script is looked up.
 
   Default is FALSE.
 
+.. variable:: Vcvars_PLATFORM_TOOLSET_VERSION
+
+  The version of the Visual C++ toolset passed to ``vcvarsall.bat``
+  via the ``-vcvars_ver=`` argument.
+
+  If not explicitly set, this variable is initialized as follows:
+
+  * If :variable:`CMAKE_VS_PLATFORM_TOOLSET_VERSION` is defined, its full value
+    (e.g., ``14.28.29910``) is used directly.
+  * Otherwise, a simplified version (e.g., ``14.3``) is derived from
+    :variable:`Vcvars_MSVC_VERSION` using a known mapping provided by
+    :command:`Vcvars_ConvertMsvcVersionToVcToolsetVersion`.
+
+  Only used when :variable:`Vcvars_FIND_VCVARSALL` is ``TRUE``.
+
 
 This will define the following variables:
 
@@ -107,6 +122,24 @@ This module also defines the following functions
 
   ``<output_var>``
     The name of the variable to be set with the Visual Studio version.
+
+
+.. command:: Vcvars_ConvertMsvcVersionToVcToolsetVersion
+
+  Converts an MSVC version number (e.g., ``1931``) to its corresponding
+  Visual C++ toolset version (e.g., ``14.3``).
+
+  The result is suitable for use in the ``-vcvars_ver=`` argument
+  passed to ``vcvarsall.bat``.
+
+  This function currently returns toolset versions with only a single
+  digit after the decimal point. For more specific control (e.g.,
+  ``14.28.29910``), use :variable:`CMAKE_VS_PLATFORM_TOOLSET_VERSION`
+  or set :variable:`Vcvars_PLATFORM_TOOLSET_VERSION` explicitly.
+
+  ::
+
+    Vcvars_ConvertMsvcVersionToVcToolsetVersion(<msvc_version> <output_var>)
 
 
 .. command:: Vcvars_FindFirstValidMsvcVersion
@@ -293,6 +326,40 @@ function(Vcvars_ConvertMsvcVersionToVsVersion msvc_version output_var)
   set(${output_var} ${vs_version} PARENT_SCOPE)
 endfunction()
 
+function(Vcvars_ConvertMsvcVersionToVcToolsetVersion msvc_version output_var)
+  if(NOT msvc_version MATCHES ${_Vcvars_MSVC_VERSION_REGEX})
+    message(FATAL_ERROR "msvc_version is expected to match `${_Vcvars_MSVC_VERSION_REGEX}`")
+  endif()
+  if(msvc_version IN_LIST Vcvars_TOOLSET_143_MSVC_VERSIONS) # VS 2022
+    set(vc_toolset_version "14.3")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_142_MSVC_VERSIONS) # VS 2019
+    set(vc_toolset_version "14.2")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_141_MSVC_VERSIONS) # VS 2017
+    set(vc_toolset_version "14.1")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_140_MSVC_VERSIONS) # VS 2015
+    set(vc_toolset_version "14.0")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_120_MSVC_VERSIONS) # VS 2013
+    set(vc_toolset_version "12.0")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_110_MSVC_VERSIONS) # VS 2012
+    set(vc_toolset_version "11.0")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_100_MSVC_VERSIONS) # VS 2010
+    set(vc_toolset_version "10.0")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_90_MSVC_VERSIONS) # VS 2008
+    set(vc_toolset_version "9.0")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_80_MSVC_VERSIONS) # VS 2005
+    set(vc_toolset_version "8.0")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_71_MSVC_VERSIONS) # VS 2003
+    set(vc_toolset_version "7.1")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_70_MSVC_VERSIONS) # VS 2002
+    set(vc_toolset_version "7.0")
+  elseif(msvc_version IN_LIST Vcvars_TOOLSET_60_MSVC_VERSIONS) # VS 6.0
+    set(vc_toolset_version "6.0")
+  else()
+    message(FATAL_ERROR "failed to convert msvc_version [${msvc_version}] to VC toolset version. It is not a known version number.")
+  endif()
+  set(${output_var} ${vc_toolset_version} PARENT_SCOPE)
+endfunction()
+
 function(Vcvars_GetVisualStudioPaths msvc_version msvc_arch output_var)
 
   if(NOT msvc_version MATCHES ${_Vcvars_MSVC_VERSION_REGEX})
@@ -452,6 +519,22 @@ if(NOT DEFINED Vcvars_MSVC_VERSION)
   unset(_msvc_version)
 endif()
 
+if(NOT DEFINED Vcvars_PLATFORM_TOOLSET_VERSION)
+  if(DEFINED CMAKE_VS_PLATFORM_TOOLSET_VERSION)
+    set(Vcvars_PLATFORM_TOOLSET_VERSION ${CMAKE_VS_PLATFORM_TOOLSET_VERSION})
+    # Display message only once in config mode
+    if(NOT DEFINED Vcvars_BATCH_FILE)
+      _vcvars_message(STATUS "Setting Vcvars_PLATFORM_TOOLSET_VERSION to '${Vcvars_PLATFORM_TOOLSET_VERSION}' as CMAKE_VS_PLATFORM_TOOLSET_VERSION was '${CMAKE_VS_PLATFORM_TOOLSET_VERSION}'")
+    endif()
+  elseif(DEFINED Vcvars_MSVC_VERSION)
+    Vcvars_ConvertMsvcVersionToVcToolsetVersion(${Vcvars_MSVC_VERSION} Vcvars_PLATFORM_TOOLSET_VERSION)
+    # Display message only once in config mode
+    if(NOT DEFINED Vcvars_BATCH_FILE)
+      _vcvars_message(STATUS "Setting Vcvars_PLATFORM_TOOLSET_VERSION to '${Vcvars_PLATFORM_TOOLSET_VERSION}' as Vcvars_MSVC_VERSION was '${Vcvars_MSVC_VERSION}'")
+    endif()
+  endif()
+endif()
+
 if(NOT DEFINED Vcvars_BATCH_FILE AND DEFINED Vcvars_MSVC_VERSION)
   Vcvars_FindFirstValidMsvcVersion(
     "${Vcvars_MSVC_ARCH}"
@@ -474,17 +557,21 @@ endif()
 if(Vcvars_BATCH_FILE)
 
   set(_vcvarsall_arch )
+  set(_vcvarsall_vcvars_ver )
   if(Vcvars_FIND_VCVARSALL)
     if(Vcvars_MSVC_ARCH STREQUAL "64")
       set(_vcvarsall_arch "x64")
     elseif(Vcvars_MSVC_ARCH STREQUAL "32")
       set(_vcvarsall_arch "x86")
     endif()
+    if(DEFINED Vcvars_PLATFORM_TOOLSET_VERSION)
+      set(_vcvarsall_vcvars_ver "-vcvars_ver=${Vcvars_PLATFORM_TOOLSET_VERSION}")
+    endif()
   endif()
   set(_in "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/Vcvars_wrapper.bat.in")
   get_filename_component(_basename ${Vcvars_BATCH_FILE} NAME_WE)
   set(_out "${CMAKE_BINARY_DIR}/${CMAKE_FILES_DIRECTORY}/${_basename}_wrapper.bat")
-  file(WRITE ${_in} "call \"@Vcvars_BATCH_FILE@\" @_vcvarsall_arch@
+  file(WRITE ${_in} "call \"@Vcvars_BATCH_FILE@\" @_vcvarsall_arch@ @_vcvarsall_vcvars_ver@
 %*
 ")
   configure_file(${_in} ${_out} @ONLY)
@@ -507,6 +594,7 @@ find_package_handle_standard_args(Vcvars
     Vcvars_LAUNCHER
     Vcvars_MSVC_VERSION
     Vcvars_MSVC_ARCH
+    Vcvars_PLATFORM_TOOLSET_VERSION
   FAIL_MESSAGE
     "Failed to find vcvars scripts for Vcvars_MSVC_VERSION [${Vcvars_MSVC_VERSION}] and Vcvars_MSVC_ARCH [${Vcvars_MSVC_ARCH}]"
   )
