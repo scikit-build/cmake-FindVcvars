@@ -23,6 +23,10 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 <!-- CHANGELOG-INSERT -->
 
+### v1.10
+
+* feat(Vcvars): Add MSVC version mappings by toolset and Visual Studio version
+
 ### v1.9
 
 * feat(Vcvars): Support `FunctionsOnly` component to skip discovery logic
@@ -86,8 +90,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "361329de94bbcfdbd93ce76ad6c7318f84eacf9f30a7d8740dae316bb060e5aa")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.9/FindVcvars.cmake")
+set(expected_hash "da1df73a82135b18e0b69baaf8659c7f18a5a14e7f90c9d14243fedbb6731bd7")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.10/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
