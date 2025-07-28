@@ -193,6 +193,9 @@ set(Vcvars_TOOLSET_110_MSVC_VERSIONS 1700) # VS 2012
 set(Vcvars_TOOLSET_100_MSVC_VERSIONS 1600) # VS 2010
 set(Vcvars_TOOLSET_90_MSVC_VERSIONS 1500) # VS 2008
 set(Vcvars_TOOLSET_80_MSVC_VERSIONS 1400) # VS 2005
+set(Vcvars_TOOLSET_71_MSVC_VERSIONS 1310) # VS 2003
+set(Vcvars_TOOLSET_70_MSVC_VERSIONS 1300) # VS 2002
+set(Vcvars_TOOLSET_60_MSVC_VERSIONS 1200) # VS 6.0
 
 # See https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
 # and https://gitlab.kitware.com/cmake/cmake/-/merge_requests/9271
@@ -205,6 +208,9 @@ set(Vcvars_VS11_MSVC_VERSIONS ${Vcvars_TOOLSET_110_MSVC_VERSIONS}) # VS 2012
 set(Vcvars_VS10_MSVC_VERSIONS ${Vcvars_TOOLSET_100_MSVC_VERSIONS}) # VS 2010
 set(Vcvars_VS9_MSVC_VERSIONS ${Vcvars_TOOLSET_90_MSVC_VERSIONS}) # VS 2008
 set(Vcvars_VS8_MSVC_VERSIONS ${Vcvars_TOOLSET_80_MSVC_VERSIONS}) # VS 2005
+set(Vcvars_VS71_MSVC_VERSIONS ${Vcvars_TOOLSET_71_MSVC_VERSIONS}) # VS 2003
+set(Vcvars_VS7_MSVC_VERSIONS ${Vcvars_TOOLSET_70_MSVC_VERSIONS}) # VS 2002
+set(Vcvars_VS6_MSVC_VERSIONS ${Vcvars_TOOLSET_60_MSVC_VERSIONS}) # VS 6.0
 
 # Global variables used only in this script (unset at the end)
 set(_Vcvars_MSVC_ARCH_REGEX "^(32|64)$")
@@ -219,6 +225,9 @@ set(_Vcvars_SUPPORTED_MSVC_VERSIONS
   ${Vcvars_TOOLSET_100_MSVC_VERSIONS} # VS 2010
   ${Vcvars_TOOLSET_90_MSVC_VERSIONS} # VS 2008
   ${Vcvars_TOOLSET_80_MSVC_VERSIONS} # VS 2005
+  ${Vcvars_TOOLSET_71_MSVC_VERSIONS} # VS 2003
+  ${Vcvars_TOOLSET_70_MSVC_VERSIONS} # VS 2002
+  ${Vcvars_TOOLSET_60_MSVC_VERSIONS} # VS 6.0
   )
 
 # process component arguments
@@ -260,11 +269,11 @@ function(Vcvars_ConvertMsvcVersionToVsVersion msvc_version output_var)
     set(vs_version "9.0")
   elseif(msvc_version IN_LIST Vcvars_VS8_MSVC_VERSIONS) # VS 2005
     set(vs_version "8.0")
-  elseif(msvc_version EQUAL 1310) # VS 2003
+  elseif(msvc_version IN_LIST Vcvars_VS71_MSVC_VERSIONS) # VS 2003
     set(vs_version "7.1")
-  elseif(msvc_version EQUAL 1300) # VS 2002
+  elseif(msvc_version IN_LIST Vcvars_VS7_MSVC_VERSIONS) # VS 2002
     set(vs_version "7.0")
-  elseif(msvc_version EQUAL 1200) # VS 6.0
+  elseif(msvc_version IN_LIST Vcvars_VS6_MSVC_VERSIONS) # VS 6.0
     set(vs_version "6.0")
   else()
     message(FATAL_ERROR "failed to convert msvc_version [${msvc_version}]. It is not a known version number.")
