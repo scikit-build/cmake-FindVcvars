@@ -242,23 +242,23 @@ function(Vcvars_ConvertMsvcVersionToVsVersion msvc_version output_var)
     message(FATAL_ERROR "msvc_version is expected to match `${_Vcvars_MSVC_VERSION_REGEX}`")
   endif()
   # See https://en.wikipedia.org/wiki/Microsoft_Visual_C%2B%2B#Internal_version_numbering
-  if((msvc_version GREATER_EQUAL 1930) AND (msvc_version LESS 1950))     # VS 2022
+  if(msvc_version IN_LIST Vcvars_VS17_MSVC_VERSIONS) # VS 2022
     set(vs_version "17")
-  elseif((msvc_version GREATER_EQUAL 1920) AND (msvc_version LESS 1930)) # VS 2019
+  elseif(msvc_version IN_LIST Vcvars_VS16_MSVC_VERSIONS) # VS 2019
     set(vs_version "16")
-  elseif((msvc_version GREATER_EQUAL 1910) AND (msvc_version LESS 1920)) # VS 2017
+  elseif(msvc_version IN_LIST Vcvars_VS15_MSVC_VERSIONS) # VS 2017
     set(vs_version "15")
-  elseif(msvc_version EQUAL 1900) # VS 2015
+  elseif(msvc_version IN_LIST Vcvars_VS14_MSVC_VERSIONS) # VS 2015
     set(vs_version "14.0")
-  elseif(msvc_version EQUAL 1800) # VS 2013
+  elseif(msvc_version IN_LIST Vcvars_VS12_MSVC_VERSIONS) # VS 2013
     set(vs_version "12.0")
-  elseif(msvc_version EQUAL 1700) # VS 2012
+  elseif(msvc_version IN_LIST Vcvars_VS11_MSVC_VERSIONS) # VS 2012
     set(vs_version "11.0")
-  elseif(msvc_version EQUAL 1600) # VS 2010
+  elseif(msvc_version IN_LIST Vcvars_VS10_MSVC_VERSIONS) # VS 2010
     set(vs_version "10.0")
-  elseif(msvc_version EQUAL 1500) # VS 2008
+  elseif(msvc_version IN_LIST Vcvars_VS9_MSVC_VERSIONS) # VS 2008
     set(vs_version "9.0")
-  elseif(msvc_version EQUAL 1400) # VS 2005
+  elseif(msvc_version IN_LIST Vcvars_VS8_MSVC_VERSIONS) # VS 2005
     set(vs_version "8.0")
   elseif(msvc_version EQUAL 1310) # VS 2003
     set(vs_version "7.1")
