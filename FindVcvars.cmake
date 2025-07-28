@@ -362,6 +362,9 @@ function(Vcvars_FindFirstValidMsvcVersion msvc_arch candidate_msvc_versions msvc
       set(_candidate_scripts vcvars32.bat)
     endif()
   endif()
+  # set defaults
+  set(_batch_file "${batch_file_output_varname}-NOTFOUND")
+  set(_msvc_version "")
   foreach(_candidate_msvc_version IN LISTS candidate_msvc_versions)
     Vcvars_GetVisualStudioPaths(${_candidate_msvc_version} "${msvc_arch}" _paths)
     Vcvars_ConvertMsvcVersionToVsVersion(${_candidate_msvc_version} _candidate_vs_version)
@@ -375,14 +378,14 @@ function(Vcvars_FindFirstValidMsvcVersion msvc_arch candidate_msvc_versions msvc
       _vcvars_message(STATUS "${_msg} - found")
       set(_msvc_version ${_candidate_msvc_version})
       _vcvars_message(STATUS "Setting ${msvc_version_output_varname} to '${_msvc_version}' as it was the newest Visual Studio installed providing vcvars scripts")
-      # Output variables
-      set(${msvc_version_output_varname} ${_msvc_version} PARENT_SCOPE)
-      set(${batch_file_output_varname} ${_batch_file} PARENT_SCOPE)
       break()
     else()
       _vcvars_message(STATUS "${_msg} - not found")
     endif()
   endforeach()
+  # set outputs
+  set(${msvc_version_output_varname} ${_msvc_version} PARENT_SCOPE)
+  set(${batch_file_output_varname} ${_batch_file} PARENT_SCOPE)
 endfunction()
 
 if(_Vcvars_FUNCTIONS_ONLY)
@@ -424,63 +427,50 @@ if(NOT DEFINED Vcvars_FIND_VCVARSALL)
   set(Vcvars_FIND_VCVARSALL FALSE)
 endif()
 
-if(NOT DEFINED Vcvars_BATCH_FILE)
-  set(Vcvars_BATCH_FILE "Vcvars_BATCH_FILE-NOTFOUND")
-endif()
-
-if(NOT DEFINED Vcvars_LAUNCHER)
-  set(Vcvars_LAUNCHER "Vcvars_LAUNCHER-NOTFOUND")
-endif()
-
 # check Vcvars_MSVC_ARCH is properly set
 if(NOT Vcvars_MSVC_ARCH MATCHES ${_Vcvars_MSVC_ARCH_REGEX})
   message(FATAL_ERROR "Vcvars_MSVC_ARCH [${Vcvars_MSVC_ARCH}] is expected to match `${_Vcvars_MSVC_ARCH_REGEX}`")
 endif()
 
-# which vcvars script ?
-if(Vcvars_FIND_VCVARSALL)
-  set(_Vcvars_SCRIPTS vcvarsall.bat)
-else()
-  if(Vcvars_MSVC_ARCH STREQUAL "64")
-    set(_Vcvars_SCRIPTS vcvarsamd64.bat vcvars64.bat)
-  else()
-    set(_Vcvars_SCRIPTS vcvars32.bat)
-  endif()
-endif()
-
-# set Vcvars_BATCH_FILE
+# auto-discover Vcvars_MSVC_VERSION value (and set Vcvars_BATCH_FILE as a side-effect)
 if(NOT DEFINED Vcvars_MSVC_VERSION)
-  # auto-discover Vcvars_MSVC_VERSION value
   Vcvars_FindFirstValidMsvcVersion(
     "${Vcvars_MSVC_ARCH}"
     "${_Vcvars_SUPPORTED_MSVC_VERSIONS}"
-    Vcvars_MSVC_VERSION
+    _msvc_version
     _batch_file
     )
-  Vcvars_ConvertMsvcVersionToVsVersion(${Vcvars_MSVC_VERSION} _vs_version)
-  unset(Vcvars_BATCH_FILE)
-  set(Vcvars_BATCH_FILE ${_batch_file}
-    CACHE FILEPATH "Visual Studio ${_vs_version} vcvars script"
-    )
-  unset(_batch_file)
-  unset(_vs_version)
-else()
-  # use provided Vcvars_MSVC_VERSION value
-  if(NOT Vcvars_MSVC_VERSION MATCHES ${_Vcvars_MSVC_VERSION_REGEX})
-    message(FATAL_ERROR "Vcvars_MSVC_VERSION [${Vcvars_MSVC_VERSION}] is expected to match `${_Vcvars_MSVC_VERSION_REGEX}`")
+  if(_batch_file)
+    set(Vcvars_MSVC_VERSION ${_msvc_version})
+    Vcvars_ConvertMsvcVersionToVsVersion(${Vcvars_MSVC_VERSION} _vs_version)
+    set(Vcvars_BATCH_FILE ${_batch_file}
+      CACHE FILEPATH "Visual Studio ${_vs_version} vcvars script"
+      )
+    unset(_vs_version)
   endif()
-  Vcvars_GetVisualStudioPaths(${Vcvars_MSVC_VERSION} "${Vcvars_MSVC_ARCH}" _paths)
-  Vcvars_ConvertMsvcVersionToVsVersion(${Vcvars_MSVC_VERSION} _vs_version)
-  find_program(Vcvars_BATCH_FILE NAMES ${_Vcvars_SCRIPTS}
-    DOC "Visual Studio ${_vs_version} vcvars script"
-    PATHS ${_paths}
+  unset(_batch_file)
+  unset(_msvc_version)
+endif()
+
+if(NOT DEFINED Vcvars_BATCH_FILE AND DEFINED Vcvars_MSVC_VERSION)
+  Vcvars_FindFirstValidMsvcVersion(
+    "${Vcvars_MSVC_ARCH}"
+    "${Vcvars_MSVC_VERSION}"
+    _msvc_version # Unused (Vcvars_MSVC_VERSION already set)
+    _batch_file
     )
-  unset(_paths)
-  unset(_vs_version)
+  if(_batch_file)
+    Vcvars_ConvertMsvcVersionToVsVersion(${Vcvars_MSVC_VERSION} _vs_version)
+    set(Vcvars_BATCH_FILE ${_batch_file}
+      CACHE FILEPATH "Visual Studio ${_vs_version} vcvars script"
+      )
+    unset(_vs_version)
+  endif()
+  unset(_batch_file)
+  unset(_msvc_version)
 endif()
 
 # configure wrapper script
-set(Vcvars_LAUNCHER)
 if(Vcvars_BATCH_FILE)
 
   set(_vcvarsall_arch )
@@ -503,10 +493,10 @@ if(Vcvars_BATCH_FILE)
   unset(_in)
   unset(_out)
   unset(_vcvarsall_arch)
+else()
+  set(Vcvars_LAUNCHER "Vcvars_LAUNCHER-NOTFOUND")
 endif()
 
-# cleanup
-unset(_Vcvars_SCRIPTS)
 
 # outputs
 include(FindPackageHandleStandardArgs)
