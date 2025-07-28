@@ -23,6 +23,10 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 <!-- CHANGELOG-INSERT -->
 
+### v1.11
+
+* feat(vsvars): Refactor vcvars discovery with reusable function
+
 ### v1.10
 
 * feat(Vcvars): Add MSVC version mappings by toolset and Visual Studio version
@@ -90,8 +94,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "da1df73a82135b18e0b69baaf8659c7f18a5a14e7f90c9d14243fedbb6731bd7")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.10/FindVcvars.cmake")
+set(expected_hash "cfac3aa8a306906ca3c90ff476dcc2e8f01f41ce8c4b3d2ebb3ae539c1a665c0")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.11/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
@@ -162,7 +166,7 @@ cd cmake-FindVcvars
 
 expected_hash=$(git show $tag:FindVcvars.cmake | sha256sum | cut -d" " -f1) && \
 sed -E "s/set\(expected_hash.+\)/set\(expected_hash \"$expected_hash\"\)/g" -i README.md && \
-sed -E "s/v[0-9](\.[0-9])+\/FindVcvars.cmake/$tag\/FindVcvars.cmake/g" -i README.md && \
+sed -E "s/v[0-9](\.[0-9]+)+\/FindVcvars.cmake/$tag\/FindVcvars.cmake/g" -i README.md && \
 git add README.md && \
 git commit -m "README: Update release and expected_hash"
 ```
