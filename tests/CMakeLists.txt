@@ -29,6 +29,7 @@ list(INSERT CMAKE_MODULE_PATH 0 "@FindVcvars_MODULE_PATH@")
 
 # Check expected defined variables
 set(expected_vars
+  FIND_VCVARS_COMPONENTS
   EXPECTED_MSVC_ARCH
   EXPECTED_MSVC_VERSION
   EXPECTED_BATCH_FILENAME
@@ -40,10 +41,16 @@ foreach(var_name IN LISTS expected_vars)
   endif()
 endforeach()
 
+if("FunctionsOnly" IN_LIST FIND_VCVARS_COMPONENTS)
+  set(FUNCTIONS_ONLY_COMPONENT_REQUESTED TRUE)
+else()
+  set(FUNCTIONS_ONLY_COMPONENT_REQUESTED FALSE)
+endif()
+
 # Set Vcvars_<varname> based of REQUESTED_<varname>
 set(requested_vars)
 
-if(DEFINED REQUESTED_MSVC_ARCH)
+if(DEFINED REQUESTED_MSVC_ARCH AND NOT FUNCTIONS_ONLY_COMPONENT_REQUESTED)
   if(REQUESTED_MSVC_ARCH STREQUAL "64")
     set(CMAKE_SIZEOF_VOID_P 8)
   elseif(REQUESTED_MSVC_ARCH STREQUAL "32")
@@ -54,7 +61,7 @@ if(DEFINED REQUESTED_MSVC_ARCH)
   list(APPEND requested_vars REQUESTED_MSVC_ARCH)
 endif()
 
-if(DEFINED REQUESTED_MSVC_VERSION)
+if(DEFINED REQUESTED_MSVC_VERSION AND NOT FUNCTIONS_ONLY_COMPONENT_REQUESTED)
   set(Vcvars_MSVC_VERSION ${REQUESTED_MSVC_VERSION})
   list(APPEND requested_vars REQUESTED_MSVC_VERSION)
 endif()
@@ -78,13 +85,29 @@ endforeach()
 
 message(STATUS "")
 
-find_package(Vcvars REQUIRED)
+if(FUNCTIONS_ONLY_COMPONENT_REQUESTED)
+  find_package(Vcvars COMPONENTS FunctionsOnly REQUIRED)
+else()
+  find_package(Vcvars ${components_arg} REQUIRED)
+endif()
 
 message(STATUS "")
 
+function(check_function_defined func_name)
+  if(NOT COMMAND "${func_name}")
+    message(FATAL_ERROR "Function ${func_name} is not defined in the calling scope")
+  endif()
+endfunction()
+
 function(check_var_defined var_name)
-  if(NOT DEFINED ${var_name})
+  if(NOT DEFINED "${var_name}")
     message(FATAL_ERROR "Variable ${var_name} is not defined in the calling scope")
+  endif()
+endfunction()
+
+function(check_var_not_defined var_name)
+  if(DEFINED "${var_name}")
+    message(FATAL_ERROR "Variable ${var_name} is defined in the calling scope")
   endif()
 endfunction()
 
@@ -130,14 +153,26 @@ endforeach()
 # Check output values
 message(STATUS "")
 
-check_var_equals("Vcvars_MSVC_ARCH" "${EXPECTED_MSVC_ARCH}")
-check_var_equals("Vcvars_MSVC_VERSION" "${EXPECTED_MSVC_VERSION}")
+check_var_equals("Vcvars_FOUND" "TRUE")
 
-check_file_exists("Vcvars_BATCH_FILE")
-check_filename_matches("Vcvars_BATCH_FILE" "${EXPECTED_BATCH_FILENAME}")
+check_function_defined("Vcvars_ConvertMsvcVersionToVsVersion")
+check_function_defined("Vcvars_GetVisualStudioPaths")
 
-check_file_exists("Vcvars_LAUNCHER")
-check_filename_matches("Vcvars_LAUNCHER" "${EXPECTED_LAUNCHER_FILENAME}")
+if(FUNCTIONS_ONLY_COMPONENT_REQUESTED)
+  check_var_not_defined("Vcvars_MSVC_ARCH")
+  check_var_not_defined("Vcvars_MSVC_VERSION")
+  check_var_not_defined("Vcvars_LAUNCHER")
+  check_var_not_defined("Vcvars_LAUNCHER")
+else()
+  check_var_equals("Vcvars_MSVC_ARCH" "${EXPECTED_MSVC_ARCH}")
+  check_var_equals("Vcvars_MSVC_VERSION" "${EXPECTED_MSVC_VERSION}")
+
+  check_file_exists("Vcvars_BATCH_FILE")
+  check_filename_matches("Vcvars_BATCH_FILE" "${EXPECTED_BATCH_FILENAME}")
+
+  check_file_exists("Vcvars_LAUNCHER")
+  check_filename_matches("Vcvars_LAUNCHER" "${EXPECTED_LAUNCHER_FILENAME}")
+endif()
 ]==]
 )
 
@@ -169,25 +204,39 @@ function(add_find_vcvars_test)
     "${options}" "${oneValueArgs}" "${multiValueArgs}"
     )
 
-  # script-mode
-  add_test(
-    NAME "script-mode-${arg_NAME}"
-    COMMAND ${CMAKE_COMMAND} ${arg_OPTIONS} -P ${script_mode_script}
-    )
+  function(_add_find_vcvars_test component)
+    if(component)
+      set(test_name_suffix "${component}-${arg_NAME}")
+    else()
+      set(test_name_suffix "${arg_NAME}")
+    endif()
+    list(APPEND arg_OPTIONS
+      -DFIND_VCVARS_COMPONENTS=${component}
+      )
 
-  # project-mode
-  set(src_dir "${project_mode_src_dir}")
-  set(bld_dir "${project_mode_src_dir}-${arg_NAME}-build")
-  add_test(
-    NAME "project-mode-${arg_NAME}"
-    COMMAND ${CMAKE_COMMAND} ${arg_OPTIONS} -S ${src_dir} -B ${bld_dir}
-    )
-  set_tests_properties("project-mode-${arg_NAME}"  PROPERTIES FIXTURES_REQUIRED "fixture-${arg_NAME}")
-  add_test(
-    NAME "project-mode-${arg_NAME}-setup"
-    COMMAND ${CMAKE_COMMAND} -E rm -rf ${bld_dir}
-    )
-  set_tests_properties("project-mode-${arg_NAME}-setup"  PROPERTIES FIXTURES_SETUP "fixture-${arg_NAME}")
+    # script-mode
+    add_test(
+      NAME "script-mode-${test_name_suffix}"
+      COMMAND ${CMAKE_COMMAND} ${arg_OPTIONS} -P ${script_mode_script}
+      )
+
+    # project-mode
+    set(src_dir "${project_mode_src_dir}")
+    set(bld_dir "${project_mode_src_dir}-${test_name_suffix}-build")
+    add_test(
+      NAME "project-mode-${test_name_suffix}"
+      COMMAND ${CMAKE_COMMAND} ${arg_OPTIONS} -S ${src_dir} -B ${bld_dir}
+      )
+    set_tests_properties("project-mode-${test_name_suffix}"  PROPERTIES FIXTURES_REQUIRED "fixture-${test_name_suffix}")
+    add_test(
+      NAME "project-mode-${test_name_suffix}-setup"
+      COMMAND ${CMAKE_COMMAND} -E rm -rf ${bld_dir}
+      )
+    set_tests_properties("project-mode${suffix}-${test_name_suffix}-setup"  PROPERTIES FIXTURES_SETUP "fixture-${test_name_suffix}")
+  endfunction()
+
+  _add_find_vcvars_test("")
+  _add_find_vcvars_test("FunctionsOnly")
 endfunction()
 
 add_find_vcvars_test(
