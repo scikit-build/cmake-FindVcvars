@@ -47,36 +47,15 @@ else()
   set(FUNCTIONS_ONLY_COMPONENT_REQUESTED FALSE)
 endif()
 
-# Set Vcvars_<varname> based of REQUESTED_<varname>
+# Initialize Vcvars_<varname> variables from REQUESTED_<varname> inputs
+# unless the "FunctionsOnly" component is being tested
 set(requested_vars)
-
-if(DEFINED REQUESTED_MSVC_ARCH AND NOT FUNCTIONS_ONLY_COMPONENT_REQUESTED)
-  if(REQUESTED_MSVC_ARCH STREQUAL "64")
-    set(CMAKE_SIZEOF_VOID_P 8)
-  elseif(REQUESTED_MSVC_ARCH STREQUAL "32")
-    set(CMAKE_SIZEOF_VOID_P 4)
-  else()
-    message(FATAL_ERROR "Variable REQUESTED_MSVC_ARCH is invalid. Expected value 32 or 64")
-  endif()
-  list(APPEND requested_vars REQUESTED_MSVC_ARCH)
-endif()
-
-if(DEFINED REQUESTED_MSVC_VERSION AND NOT FUNCTIONS_ONLY_COMPONENT_REQUESTED)
-  set(Vcvars_MSVC_VERSION ${REQUESTED_MSVC_VERSION})
-  list(APPEND requested_vars REQUESTED_MSVC_VERSION)
-endif()
-
-if(DEFINED REQUESTED_FIND_VCVARSALL AND NOT FUNCTIONS_ONLY_COMPONENT_REQUESTED)
-  set(Vcvars_FIND_VCVARSALL ${REQUESTED_FIND_VCVARSALL})
-  list(APPEND requested_vars REQUESTED_FIND_VCVARSALL)
-endif()
-
-foreach(var_suffix IN LISTS
+foreach(var_suffix IN ITEMS
   FIND_VCVARSALL
   MSVC_ARCH
   MSVC_VERSION
   )
-  if(DEFINED REQUESTED_${var_suffix})
+  if(DEFINED REQUESTED_${var_suffix} AND NOT FUNCTIONS_ONLY_COMPONENT_REQUESTED)
     set(Vcvars_${var_suffix} ${REQUESTED_${var_suffix}})
     list(APPEND requested_vars REQUESTED_${var_suffix})
   endif()
