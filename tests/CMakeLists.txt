@@ -233,7 +233,7 @@ if(FUNCTIONS_ONLY_COMPONENT_REQUESTED)
   check_var_not_defined("Vcvars_MSVC_ARCH")
   check_var_not_defined("Vcvars_MSVC_VERSION")
   check_var_not_defined("Vcvars_PLATFORM_TOOLSET_VERSION")
-  check_var_not_defined("Vcvars_LAUNCHER")
+  check_var_not_defined("Vcvars_BATCH_FILE")
   check_var_not_defined("Vcvars_LAUNCHER")
 else()
   check_var_equals("Vcvars_FIND_VCVARSALL" "${EXPECTED_FIND_VCVARSALL}")
@@ -246,6 +246,30 @@ else()
 
   check_file_exists("Vcvars_LAUNCHER")
   check_filename_matches("Vcvars_LAUNCHER" "${EXPECTED_LAUNCHER_FILENAME}")
+
+  # Extract and validate the call to vcvars batch script in the generated wrapper
+  file(STRINGS ${Vcvars_LAUNCHER} _call REGEX "^call")
+  list(GET _call 0 _call) # Ensure only the first match is considered
+  string(STRIP "${_call}" _call)
+
+  if(Vcvars_FIND_VCVARSALL)
+    if(Vcvars_MSVC_ARCH STREQUAL "64")
+      set(expected_arch "x64")
+    elseif(Vcvars_MSVC_ARCH STREQUAL "32")
+      set(expected_arch "x86")
+    else()
+      set(expected_arch "")
+    endif()
+    set(expected_vcvars_ver "-vcvars_ver=${Vcvars_PLATFORM_TOOLSET_VERSION}")
+  else()
+    set(expected_arch "")
+    set(expected_vcvars_ver "")
+  endif()
+
+  set(expected_call "call \"${Vcvars_BATCH_FILE}\" ${expected_arch} ${expected_vcvars_ver}")
+  string(STRIP "${expected_call}" expected_call)
+
+  check_var_equals(_call "${expected_call}")
 endif()
 ]==]
 )
