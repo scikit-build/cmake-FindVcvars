@@ -504,11 +504,10 @@ if(NOT DEFINED Vcvars_MSVC_VERSION)
   Vcvars_FindFirstValidMsvcVersion(
     "${Vcvars_MSVC_ARCH}"
     "${_Vcvars_SUPPORTED_MSVC_VERSIONS}"
-    _msvc_version
+    Vcvars_MSVC_VERSION
     _batch_file
     )
   if(_batch_file)
-    set(Vcvars_MSVC_VERSION ${_msvc_version})
     Vcvars_ConvertMsvcVersionToVsVersion(${Vcvars_MSVC_VERSION} _vs_version)
     set(Vcvars_BATCH_FILE ${_batch_file}
       CACHE FILEPATH "Visual Studio ${_vs_version} vcvars script"
@@ -516,7 +515,6 @@ if(NOT DEFINED Vcvars_MSVC_VERSION)
     unset(_vs_version)
   endif()
   unset(_batch_file)
-  unset(_msvc_version)
 endif()
 
 if(NOT DEFINED Vcvars_PLATFORM_TOOLSET_VERSION)
