@@ -23,6 +23,18 @@ For reference, the associated merge request is https://gitlab.kitware.com/cmake/
 
 <!-- CHANGELOG-INSERT -->
 
+### v1.12
+
+* feat(Vcvars): Add support for selecting vcvarsall.bat via Vcvars_FIND_VCVARSALL
+* feat(Vcvars): Add support for VC toolset version selection via -vcvars_ver
+* chore(Vcvars): Refactor MSVC-to-VS version mapping using Vcvars version lists
+* chore(Vcvars): Consolidate support for legacy MSVC versions (VS 6.0, 2002, 2003)
+* chore(Vcvars): Simplify logic for auto-discovering Vcvars_MSVC_VERSION
+* tests: Fix REQUESTED_* handling and remove redundant logic
+* tests: Validate call line in generated launcher script
+* tests: Support parallel execution of script and project-mode tests
+* fix(Vcvars): Ensure message reflects correct variable being set
+
 ### v1.11
 
 * feat(vsvars): Refactor vcvars discovery with reusable function
@@ -94,8 +106,8 @@ There are few possible approaches:
 ```cmake
 # Download FindVcvars.cmake
 set(dest_file "${CMAKE_CURRENT_BINARY_DIR}/FindVcvars.cmake")
-set(expected_hash "cfac3aa8a306906ca3c90ff476dcc2e8f01f41ce8c4b3d2ebb3ae539c1a665c0")
-set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.11/FindVcvars.cmake")
+set(expected_hash "56cbf16b279d9c8481a01e5ff115b9d2429f384377640c1265c2fecf19bcbe92")
+set(url "https://raw.githubusercontent.com/scikit-build/cmake-FindVcvars/v1.12/FindVcvars.cmake")
 if(NOT EXISTS ${dest_file})
   file(DOWNLOAD ${url} ${dest_file} EXPECTED_HASH SHA256=${expected_hash})
 else()
