@@ -149,6 +149,8 @@ check_function_defined("Vcvars_ConvertMsvcVersionToVcToolsetVersion")
 check_function_defined("Vcvars_GetVisualStudioPaths")
 check_function_defined("Vcvars_FindFirstValidMsvcVersion")
 
+# VS 2026
+check_var_equals(Vcvars_TOOLSET_145_MSVC_VERSIONS "1959;1958;1957;1956;1955;1954;1953;1952;1951;1950")
 # VS 2022
 check_var_equals(Vcvars_TOOLSET_143_MSVC_VERSIONS "1949;1948;1947;1946;1945;1944;1943;1942;1941;1940;1939;1938;1937;1936;1935;1934;1933;1932;1931;1930")
 # VS 2019
@@ -165,6 +167,7 @@ check_var_equals(Vcvars_TOOLSET_71_MSVC_VERSIONS "1310") # VS 2003
 check_var_equals(Vcvars_TOOLSET_70_MSVC_VERSIONS "1300") # VS 2002
 check_var_equals(Vcvars_TOOLSET_60_MSVC_VERSIONS "1200") # VS 6.0
 
+check_var_equals(Vcvars_VS18_MSVC_VERSIONS "${Vcvars_TOOLSET_145_MSVC_VERSIONS}") # VS 2026
 check_var_equals(Vcvars_VS17_MSVC_VERSIONS "${Vcvars_TOOLSET_143_MSVC_VERSIONS}") # VS 2022
 check_var_equals(Vcvars_VS16_MSVC_VERSIONS "${Vcvars_TOOLSET_142_MSVC_VERSIONS}") # VS 2019
 check_var_equals(Vcvars_VS15_MSVC_VERSIONS "${Vcvars_TOOLSET_141_MSVC_VERSIONS}") # VS 2017
@@ -190,6 +193,7 @@ function(check_msvc_version_to_vs_version_convert msvc_versions_var expected_vs_
   endforeach()
 endfunction()
 
+check_msvc_version_to_vs_version_convert(Vcvars_VS18_MSVC_VERSIONS "18")
 check_msvc_version_to_vs_version_convert(Vcvars_VS17_MSVC_VERSIONS "17")
 check_msvc_version_to_vs_version_convert(Vcvars_VS16_MSVC_VERSIONS "16")
 check_msvc_version_to_vs_version_convert(Vcvars_VS15_MSVC_VERSIONS "15")
@@ -215,6 +219,7 @@ function(check_msvc_version_to_vc_toolset_version_convert msvc_versions_var expe
   endforeach()
 endfunction()
 
+check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS18_MSVC_VERSIONS "14.5")
 check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS17_MSVC_VERSIONS "14.3")
 check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS16_MSVC_VERSIONS "14.2")
 check_msvc_version_to_vc_toolset_version_convert(Vcvars_VS15_MSVC_VERSIONS "14.1")
