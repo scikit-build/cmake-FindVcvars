@@ -22,12 +22,12 @@ jobs:
         cmake-version: [4.2.0]
         include:
           - os: windows-latest
-            cmake-generator: "Visual Studio 17 2022"
+            cmake-generator: "Visual Studio 18 2026"
             expected-msvc-arch: 64
-            expected-msvc-version: 1949 # Visual Studio 17 2022
+            expected-msvc-version: 1959 # Visual Studio 18 2026
             expected-batch-filename: "vcvars64.bat"
             expected-wrapper-filename: "vcvars64_wrapper.bat"
-            expected-platform-toolset-version: "14.3"
+            expected-platform-toolset-version: "14.5"
 
     name: Tests on ${{ matrix.os }}
     steps:
